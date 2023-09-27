@@ -13,6 +13,7 @@ public class EnnemyAI : MonoBehaviour
     [SerializeField] private float aggroRadius = 10f;
     [SerializeField] private float shootingRadius = 5f;
     [SerializeField] private LayerMask canSee;
+    [SerializeField] private Animator animator;
 
     private Path path;
     private int currentWaypoint = 0;
@@ -69,7 +70,12 @@ public class EnnemyAI : MonoBehaviour
         {
             RaycastHit2D hit = Physics2D.Raycast(transform.position, -dirTarget, shootingRadius, canSee);
             shooting = hit && hit.collider.gameObject == target.gameObject;
+            if(shooting)
+            {
+                animator.SetBool("IsShooting", true);
+            }
         }
+
 
         if(shooting)
         {
@@ -87,6 +93,7 @@ public class EnnemyAI : MonoBehaviour
 
         Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
         Vector2 force = direction * speed * Time.deltaTime;
+        animator.SetFloat("Speed", force.magnitude);
 
         rb.AddForce(force);
 
@@ -98,12 +105,11 @@ public class EnnemyAI : MonoBehaviour
 
         if (force.x >= 0.01f)
         {
-            ennemyGFX.localScale = new Vector3(-1f, 1f, 1f);
+            ennemyGFX.localScale = new Vector3(Mathf.Abs(ennemyGFX.localScale.x), ennemyGFX.localScale.y, ennemyGFX.localScale.z);
         }
         else if (force.x <= -0.01f)
         {
-
-            ennemyGFX.localScale = new Vector3(1f, 1f, 1f);
+            ennemyGFX.localScale = new Vector3(-Mathf.Abs(ennemyGFX.localScale.x), ennemyGFX.localScale.y, ennemyGFX.localScale.z);
         }
     }
 }
