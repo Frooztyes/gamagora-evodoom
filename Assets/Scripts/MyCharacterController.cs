@@ -23,7 +23,7 @@ public class MyCharacterController : MonoBehaviour
     private float magazine;
     private float rotationOffset = 0;
 
-    [SerializeField] private Animator gunAnimator;
+    [SerializeField] private Animation gunAnimation;
 
     [Header("Landing Events")]
     [SerializeField] private UnityEvent OnLandEvent;
@@ -57,7 +57,7 @@ public class MyCharacterController : MonoBehaviour
         }
 
         gun.transform.rotation = Quaternion.Slerp(gun.transform.rotation, qTo, Time.fixedDeltaTime * gunRotationSpeed);
-        if (/* animator playing &&*/ magazine == 0)
+        if (!gunAnimation.isPlaying && magazine == 0)
         {
             magazine = magazineCapacity;
         }
@@ -82,6 +82,8 @@ public class MyCharacterController : MonoBehaviour
 
     private void ShootProjectile(Vector2 dir)
     {
+        if (magazine <= 0) return;
+
         Projectile p = Instantiate(projectile, projectilePosition.position, Quaternion.identity).GetComponent<Projectile>();
 
 
@@ -95,7 +97,7 @@ public class MyCharacterController : MonoBehaviour
         magazine--;
         if (magazine == 0)
         {
-            //gunAnimator.Play("Reload");
+            gunAnimation.Play("Reload");
         }
         else
         {
