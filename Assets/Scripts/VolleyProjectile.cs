@@ -26,7 +26,7 @@ public class VolleyProjectile : MonoBehaviour
         {
             float percent = (1.0f * i / (bulletPerVolley - 1));
             float angle = (spread * 2.0f * percent) - spread;
-            Vector2 dir = Quaternion.Euler(0f, 0f, angle) * transform.right;
+            Vector2 dir = Quaternion.Euler(0f, 0f, angle) * -transform.right * (transform.lossyScale.x < 0 ? -1 : 1);
             Gizmos.DrawRay(transform.position, dir);
         }
     }
@@ -36,7 +36,7 @@ public class VolleyProjectile : MonoBehaviour
     void Start()
     {
         IsShooting = true;
-        idAngle = 0;
+        idAngle = Random.Range(0, bulletPerVolley);
         upwardSpread = true;
         //Projectile p = Instantiate(projectile, projectilePosition.position, Quaternion.identity).GetComponent<Projectile>();
         InvokeRepeating("ShootProjectile", 0, 1.0f/bulletPerSecond);
@@ -47,7 +47,7 @@ public class VolleyProjectile : MonoBehaviour
         if (!IsShooting) return;
         float percent = 1.0f * idAngle / (bulletPerVolley - 1);
         float angle = (spread * 2.0f * percent) - spread;
-        Vector2 dir = Quaternion.Euler(0f, 0f, angle) * -transform.right;
+        Vector2 dir = Quaternion.Euler(0f, 0f, angle) * -transform.right * (transform.lossyScale.x < 0 ? -1 : 1);
 
         Projectile p = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Projectile>();
         p.setDirection(dir);

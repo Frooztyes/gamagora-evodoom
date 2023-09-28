@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc2dad8b04720724ba0d771ba3ae384d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectile: {fileID: 1563950132161701042, guid: 75eb89fb5e69cc84688f6c56f3aeda1c, type: 3}
+  projectile: {fileID: 1563950132161701042, guid: f04b9d458986eff4d9e45d4d53fd81f7, type: 3}
   spread: 45
   bulletPerVolley: 5
   bulletPerSecond: 5

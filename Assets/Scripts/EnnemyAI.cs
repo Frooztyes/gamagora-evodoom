@@ -116,6 +116,8 @@ public class EnnemyAI : MonoBehaviour
                 {
                     attackGO = Instantiate(o, attackPosition.position, Quaternion.identity);
                     attackGO.transform.parent = attackPosition;
+                    if (target.position.x > transform.position.x)
+                        attackGO.transform.localScale = new Vector3(-attackGO.transform.localScale.x, attackGO.transform.localScale.y, attackGO.transform.localScale.z);
                 }
                 break;
             case AttackType.LASER:
@@ -159,6 +161,7 @@ public class EnnemyAI : MonoBehaviour
         if (IsTargetInAggroRange() && currentState == State.RUN) return State.RUN;
         else if (IsTargetInAggroRange() && !IsTargetInShootingRange() && (currentState == State.IDLE || currentState == State.SHOOT))
         {
+            if (State.SHOOT == currentState) ExitShootState();
             EnterRunState();
             return State.RUN;
         }
@@ -166,6 +169,7 @@ public class EnnemyAI : MonoBehaviour
         if (!IsTargetInAggroRange() && currentState == State.IDLE) return State.IDLE;
         if (!IsTargetInAggroRange() && (currentState == State.RUN || currentState == State.SHOOT) && canLooseAggro)
         {
+            if (State.SHOOT == currentState) ExitShootState();
             EnterIdleState();
             return State.IDLE;
         }
