@@ -582,7 +582,7 @@ GameObject:
   - component: {fileID: 372654184}
   - component: {fileID: 372654185}
   - component: {fileID: 372654186}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Firearm Drone GFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -601,7 +601,8 @@ Transform:
   m_LocalPosition: {x: -1, y: 0.5, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1472659961}
   m_Father: {fileID: 133533916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &372654185
@@ -1629,10 +1630,14 @@ MonoBehaviour:
   ennemyGFX: {fileID: 133533916}
   aggroRadius: 20
   shootingRadius: 10
+  canLooseAggro: 1
   canSee:
     serializedVersion: 2
     m_Bits: 255
   animator: {fileID: 372654186}
+  attackType: 0
+  attackPattern: {fileID: 1165883099853747923, guid: d6a81b768448c3b41b963bfab0a17a35, type: 3}
+  attackPosition: {fileID: 1472659961}
 --- !u!114 &928970520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2176,6 +2181,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1472659960
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1472659961}
+  m_Layer: 8
+  m_Name: AttackPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1472659961
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1472659960}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.27260017, y: -0.15500002, z: 0}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 372654184}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1582657503
 GameObject:

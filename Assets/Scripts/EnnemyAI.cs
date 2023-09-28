@@ -6,14 +6,39 @@ using UnityEditor;
 
 public class EnnemyAI : MonoBehaviour
 {
+    enum State
+    {
+        IDLE,
+        RUN,
+        SHOOT,
+        DEAD
+    }
+
+    enum AttackType
+    {
+        VOLEY,
+        LASER,
+        SHOOT,
+        MELEE
+    }
+
     [SerializeField] private Transform target;
     [SerializeField] private float speed = 200f;
     [SerializeField] private float nextWaypointDistance = 3f;
     [SerializeField] private Transform ennemyGFX;
     [SerializeField] private float aggroRadius = 10f;
     [SerializeField] private float shootingRadius = 5f;
+    [SerializeField] private bool canLooseAggro = false;
     [SerializeField] private LayerMask canSee;
     [SerializeField] private Animator animator;
+    [SerializeField] private AttackType attackType;
+    [SerializeField] private GameObject attackPattern;
+    [SerializeField] private Transform attackPosition;
+
+
+    private GameObject attackGO;
+
+    private State currentState;
 
     private Path path;
     private int currentWaypoint = 0;
@@ -27,15 +52,13 @@ public class EnnemyAI : MonoBehaviour
     {
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
+        currentState = State.IDLE;
         InvokeRepeating("UpdatePath", 0f, .5f);
     }
 
-    private bool targetAggroed = false;
-
     void UpdatePath()
     {
-        if (!targetAggroed) return;
-        if (seeker.IsDone())
+        if (seeker.IsDone() && currentState == State.RUN)
             seeker.StartPath(rb.position, target.position, OnPathComplete);
     }
 
@@ -56,32 +79,103 @@ public class EnnemyAI : MonoBehaviour
         }
     }
 
-    private bool shooting;
-
-    // Update is called once per frame
-    void FixedUpdate()
+    bool IsTargetInAggroRange()
     {
-        // regarde si la box du joueur est dans la zone d'aggro
-        Vector3 dirTarget = (transform.position - target.position).normalized;
-        if (!targetAggroed)
+        return Vector2.Distance(transform.position, target.position) <= aggroRadius;
+    }
+
+    bool IsTargetInShootingRange()
+    {
+        if (Vector2.Distance(transform.position, target.position) <= shootingRadius)
         {
-            targetAggroed = target.GetComponent<SpriteRenderer>().bounds.Contains(transform.position - dirTarget * aggroRadius);
-        } else if(target.GetComponent<SpriteRenderer>().bounds.Contains(transform.position - dirTarget * shootingRadius))
-        {
+            Vector3 dirTarget = (transform.position - target.position).normalized;
             RaycastHit2D hit = Physics2D.Raycast(transform.position, -dirTarget, shootingRadius, canSee);
-            shooting = hit && hit.collider.gameObject == target.gameObject;
-            if(shooting)
-            {
-                animator.SetBool("IsShooting", true);
-            }
+            return hit && hit.collider.gameObject == target.gameObject;
         }
+        return false;
+    }
 
+    void EnterRunState()
+    {
+        animator.SetBool("IsShooting", false);
+    }
 
-        if(shooting)
+    void ExitShootState()
+    {
+        Destroy(attackGO);
+    }
+
+    void EnterShootState()
+    {
+        switch (attackType)
         {
-            return;
+            case AttackType.VOLEY:
+                GameObject o = attackPattern;
+                //attackPattern.TryGetValue("VOLLEY", out o);
+                if(o)
+                {
+                    attackGO = Instantiate(o, attackPosition.position, Quaternion.identity);
+                    attackGO.transform.parent = attackPosition;
+                }
+                break;
+            case AttackType.LASER:
+                break;
+            case AttackType.SHOOT:
+                break;
+            case AttackType.MELEE:
+                break;
+            default:
+                break;
+        }
+        animator.SetBool("IsShooting", true);
+    }
+
+    void EnterDeadState()
+    {
+        animator.SetBool("IsShooting", false);
+        animator.SetBool("IsDead", true);
+    }
+
+    void EnterIdleState()
+    {
+        animator.SetBool("IsShooting", false);
+    }
+
+    State ChangeState()
+    {
+        //if (ennemy.isDead())
+        //{
+        //    EnterDeadState()
+        //    newState = State.Dead;
+        //}
+
+        if (IsTargetInShootingRange() && currentState == State.SHOOT) return State.SHOOT;
+        else if (IsTargetInShootingRange() && (currentState == State.IDLE || currentState == State.RUN))
+        {
+            EnterShootState();
+            return State.SHOOT;
         }
 
+        if (IsTargetInAggroRange() && currentState == State.RUN) return State.RUN;
+        else if (IsTargetInAggroRange() && !IsTargetInShootingRange() && (currentState == State.IDLE || currentState == State.SHOOT))
+        {
+            EnterRunState();
+            return State.RUN;
+        }
+
+        if (!IsTargetInAggroRange() && currentState == State.IDLE) return State.IDLE;
+        if (!IsTargetInAggroRange() && (currentState == State.RUN || currentState == State.SHOOT) && canLooseAggro)
+        {
+            EnterIdleState();
+            return State.IDLE;
+        }
+
+        return currentState;
+
+    }
+
+    void StateRunTick()
+    {
         if (path == null) return;
 
         if (currentWaypoint >= path.vectorPath.Count)
@@ -99,9 +193,8 @@ public class EnnemyAI : MonoBehaviour
 
         float distance = Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]);
 
-        if(distance < nextWaypointDistance)
+        if (distance < nextWaypointDistance)
             currentWaypoint++;
-
 
         if (force.x >= 0.01f)
         {
@@ -110,6 +203,58 @@ public class EnnemyAI : MonoBehaviour
         else if (force.x <= -0.01f)
         {
             ennemyGFX.localScale = new Vector3(-Mathf.Abs(ennemyGFX.localScale.x), ennemyGFX.localScale.y, ennemyGFX.localScale.z);
+        }
+    }
+
+    void StateIdleTick()
+    {
+
+    }
+
+    void StateShootTick()
+    {
+        bool isBehind = target.position.x < transform.position.x;
+        if (!isBehind)
+        {
+            ennemyGFX.localScale = new Vector3(Mathf.Abs(ennemyGFX.localScale.x), ennemyGFX.localScale.y, ennemyGFX.localScale.z);
+        }
+        else if (isBehind)
+        {
+            ennemyGFX.localScale = new Vector3(-Mathf.Abs(ennemyGFX.localScale.x), ennemyGFX.localScale.y, ennemyGFX.localScale.z);
+        }
+
+        if (attackType == AttackType.VOLEY)
+        {
+
+        }
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        currentState = ChangeState();
+
+        if (currentState == State.DEAD)
+        {
+            // handle death
+            return;
+        }
+
+        if(currentState == State.SHOOT)
+        {
+            // handle shooting
+            StateShootTick();
+            return;
+        }
+        
+        if(currentState == State.RUN)
+        {
+            StateRunTick();
+        }
+
+        if(currentState == State.IDLE)
+        {
+            StateIdleTick();
         }
     }
 }
