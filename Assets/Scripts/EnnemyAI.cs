@@ -3,9 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using Pathfinding;
 using UnityEditor;
+using System;
+using Unity.VisualScripting;
 
 public class EnnemyAI : MonoBehaviour
 {
+    [Serializable]
+    private struct Pattern
+    {
+        public string name;
+        public GameObject attackPattern;
+    }
+
+
+    [SerializeField] private Ennemy ennemy;
+
     enum State
     {
         IDLE,
@@ -14,29 +26,24 @@ public class EnnemyAI : MonoBehaviour
         DEAD
     }
 
-    enum AttackType
-    {
-        VOLEY,
-        LASER,
-        SHOOT,
-        MELEE
-    }
-
+    [Header("Behaviour")]
     [SerializeField] private Transform target;
-    [SerializeField] private float speed = 200f;
-    [SerializeField] private float nextWaypointDistance = 3f;
-    [SerializeField] private Transform ennemyGFX;
-    [SerializeField] private float aggroRadius = 10f;
-    [SerializeField] private float shootingRadius = 5f;
-    [SerializeField] private bool canLooseAggro = false;
     [SerializeField] private LayerMask canSee;
-    [SerializeField] private Animator animator;
-    [SerializeField] private AttackType attackType;
-    [SerializeField] private GameObject attackPattern;
-    [SerializeField] private Transform attackPosition;
 
 
-    private GameObject attackGO;
+    private GameObject pivot;
+
+    [Header("Attack patterns")]
+    [SerializeField] private Pattern[] patterns;
+
+    [Header("Misc")]
+    [SerializeField] private float nextWaypointDistance = 3f;
+
+    private GameObject ennemyGFX;
+    private Animator animator;
+    private Transform attackPosition;
+
+    private AttackPattern attackGO;
 
     private State currentState;
 
@@ -50,6 +57,20 @@ public class EnnemyAI : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        pivot = transform.GetChild(0).gameObject;
+        ennemyGFX = Instantiate(ennemy.VFX, transform.position, Quaternion.identity);
+        ennemyGFX.transform.parent = pivot.transform;
+        ennemyGFX.transform.localPosition = ennemy.pivotPoint;
+        attackPosition = ennemyGFX.transform.GetChild(0);
+        animator = ennemyGFX.GetComponent<Animator>();
+
+        BoxCollider2D gfxCollider = ennemyGFX.GetComponent<BoxCollider2D>();
+
+        BoxCollider2D collider = this.AddComponent<BoxCollider2D>();
+        collider.size = gfxCollider.size;
+        collider.offset = gfxCollider.offset;
+
+
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
         currentState = State.IDLE;
@@ -65,9 +86,9 @@ public class EnnemyAI : MonoBehaviour
     private void OnDrawGizmos()
     {
         Handles.color = Color.red;
-        Handles.DrawWireDisc(transform.position, transform.forward, aggroRadius);
+        Handles.DrawWireDisc(transform.position, transform.forward, ennemy.AggroRadius);
         Handles.color = Color.green;
-        Handles.DrawWireDisc(transform.position, transform.forward, shootingRadius);
+        Handles.DrawWireDisc(transform.position, transform.forward, ennemy.ShootRadius);
     }
 
     void OnPathComplete(Path p)
@@ -81,15 +102,15 @@ public class EnnemyAI : MonoBehaviour
 
     bool IsTargetInAggroRange()
     {
-        return Vector2.Distance(transform.position, target.position) <= aggroRadius;
+        return Vector2.Distance(transform.position, target.position) <= ennemy.AggroRadius;
     }
 
     bool IsTargetInShootingRange()
     {
-        if (Vector2.Distance(transform.position, target.position) <= shootingRadius)
+        if (Vector2.Distance(attackPosition.position, target.position) <= ennemy.ShootRadius)
         {
-            Vector3 dirTarget = (transform.position - target.position).normalized;
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, -dirTarget, shootingRadius, canSee);
+            Vector3 dirTarget = (attackPosition.position - target.position).normalized;
+            RaycastHit2D hit = Physics2D.Raycast(attackPosition.position, -dirTarget, ennemy.ShootRadius, canSee);
             return hit && hit.collider.gameObject == target.gameObject;
         }
         return false;
@@ -105,26 +126,48 @@ public class EnnemyAI : MonoBehaviour
         Destroy(attackGO);
     }
 
+    GameObject FindPatternByName(string name)
+    {
+        foreach(Pattern p in patterns) {
+            if (p.name == name) return p.attackPattern;
+        }
+        return null;
+    }
+
     void EnterShootState()
     {
-        switch (attackType)
+        GameObject go = null;
+        switch (ennemy.AttackPattern)
         {
-            case AttackType.VOLEY:
-                GameObject o = attackPattern;
+            case Ennemy.AttackType.VOLLEY:
+                
                 //attackPattern.TryGetValue("VOLLEY", out o);
-                if(o)
+                if(go = FindPatternByName("VOLLEY"))
                 {
-                    attackGO = Instantiate(o, attackPosition.position, Quaternion.identity);
+                    attackGO = Instantiate(go, attackPosition.position, Quaternion.identity).GetComponent<VolleyProjectile>();
+
                     attackGO.transform.parent = attackPosition;
                     if (target.position.x > transform.position.x)
                         attackGO.transform.localScale = new Vector3(-attackGO.transform.localScale.x, attackGO.transform.localScale.y, attackGO.transform.localScale.z);
+                    
+                    attackGO.StartAttack();
                 }
                 break;
-            case AttackType.LASER:
+            case Ennemy.AttackType.LASER:
+                if(go = FindPatternByName("LASER"))
+                {
+                    attackGO = Instantiate(go, attackPosition.position, Quaternion.identity).GetComponent<Laser>();
+
+                    attackGO.transform.parent = attackPosition;
+                    if (target.position.x > transform.position.x)
+                        attackGO.transform.localScale = new Vector3(-attackGO.transform.localScale.x, attackGO.transform.localScale.y, attackGO.transform.localScale.z);
+                    
+                    attackGO.StartAttack();
+                }
                 break;
-            case AttackType.SHOOT:
+            case Ennemy.AttackType.SHOOT:
                 break;
-            case AttackType.MELEE:
+            case Ennemy.AttackType.MELEE:
                 break;
             default:
                 break;
@@ -150,6 +193,7 @@ public class EnnemyAI : MonoBehaviour
         //    EnterDeadState()
         //    newState = State.Dead;
         //}
+        if (attackGO != null && !attackGO.HasFinished) return State.SHOOT;
 
         if (IsTargetInShootingRange() && currentState == State.SHOOT) return State.SHOOT;
         else if (IsTargetInShootingRange() && (currentState == State.IDLE || currentState == State.RUN))
@@ -167,7 +211,7 @@ public class EnnemyAI : MonoBehaviour
         }
 
         if (!IsTargetInAggroRange() && currentState == State.IDLE) return State.IDLE;
-        if (!IsTargetInAggroRange() && (currentState == State.RUN || currentState == State.SHOOT) && canLooseAggro)
+        if (!IsTargetInAggroRange() && (currentState == State.RUN || currentState == State.SHOOT) && ennemy.CanLooseAggro)
         {
             if (State.SHOOT == currentState) ExitShootState();
             EnterIdleState();
@@ -190,7 +234,7 @@ public class EnnemyAI : MonoBehaviour
         reachedEndOfPath = false;
 
         Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
-        Vector2 force = direction * speed * Time.deltaTime;
+        Vector2 force = direction * ennemy.Speed * Time.deltaTime;
         animator.SetFloat("Speed", force.magnitude);
 
         rb.AddForce(force);
@@ -202,11 +246,19 @@ public class EnnemyAI : MonoBehaviour
 
         if (force.x >= 0.01f)
         {
-            ennemyGFX.localScale = new Vector3(Mathf.Abs(ennemyGFX.localScale.x), ennemyGFX.localScale.y, ennemyGFX.localScale.z);
+            ennemyGFX.transform.localScale = new Vector3(
+                Mathf.Abs(ennemyGFX.transform.localScale.x), 
+                ennemyGFX.transform.localScale.y, 
+                ennemyGFX.transform.localScale.z
+            );
         }
         else if (force.x <= -0.01f)
         {
-            ennemyGFX.localScale = new Vector3(-Mathf.Abs(ennemyGFX.localScale.x), ennemyGFX.localScale.y, ennemyGFX.localScale.z);
+            ennemyGFX.transform.localScale = new Vector3(
+                -Mathf.Abs(ennemyGFX.transform.localScale.x),
+                ennemyGFX.transform.localScale.y,
+                ennemyGFX.transform.localScale.z
+            );
         }
     }
 
@@ -220,16 +272,19 @@ public class EnnemyAI : MonoBehaviour
         bool isBehind = target.position.x < transform.position.x;
         if (!isBehind)
         {
-            ennemyGFX.localScale = new Vector3(Mathf.Abs(ennemyGFX.localScale.x), ennemyGFX.localScale.y, ennemyGFX.localScale.z);
+            ennemyGFX.transform.localScale = new Vector3(
+                Mathf.Abs(ennemyGFX.transform.localScale.x),
+                ennemyGFX.transform.localScale.y,
+                ennemyGFX.transform.localScale.z
+            );
         }
         else if (isBehind)
         {
-            ennemyGFX.localScale = new Vector3(-Mathf.Abs(ennemyGFX.localScale.x), ennemyGFX.localScale.y, ennemyGFX.localScale.z);
-        }
-
-        if (attackType == AttackType.VOLEY)
-        {
-
+            ennemyGFX.transform.localScale = new Vector3(
+                -Mathf.Abs(ennemyGFX.transform.localScale.x),
+                ennemyGFX.transform.localScale.y,
+                ennemyGFX.transform.localScale.z
+            );
         }
     }
 

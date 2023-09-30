@@ -2,17 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VolleyProjectile : MonoBehaviour
+public class VolleyProjectile : AttackPattern
 {
     [SerializeField] private GameObject projectile;
     [SerializeField] private float spread;
     [SerializeField] private int bulletPerVolley;
-    [SerializeField] private int bulletPerSecond;
+    [SerializeField] private float bulletPerSecond;
 
     int idAngle;
     bool upwardSpread;
 
-    public bool IsShooting { get; set; }
+    public bool IsShooting = false;
 
     private void OnDrawGizmos()
     {
@@ -35,11 +35,14 @@ public class VolleyProjectile : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        IsShooting = true;
         idAngle = Random.Range(0, bulletPerVolley);
         upwardSpread = true;
         //Projectile p = Instantiate(projectile, projectilePosition.position, Quaternion.identity).GetComponent<Projectile>();
         InvokeRepeating("ShootProjectile", 0, 1.0f/bulletPerSecond);
+    }
+    public override void StartAttack()
+    {
+        IsShooting = true;
     }
 
     void ShootProjectile()

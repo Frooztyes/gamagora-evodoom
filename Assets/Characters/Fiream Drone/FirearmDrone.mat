@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Projectile
+  m_Name: FirearmDrone
   m_Shader: {fileID: -6465566751694194690, guid: 8b10108d1681c674ebbac56e5b44d3e3, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -46,9 +46,9 @@ Material:
     m_Ints: []
     m_Floats: []
     m_Colors:
-    - _Color: {r: 20.756697, g: 12.853077, b: 0, a: 0}
+    - _Color: {r: 4, g: 0.09147754, b: 0, a: 0.972549}
   m_BuildTextureStacks: []
---- !u!114 &9144532218238945104
+--- !u!114 &7306562326986720299
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

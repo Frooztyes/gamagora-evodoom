@@ -6,7 +6,6 @@ using UnityEngine.Events;
 public class MyCharacterController : MonoBehaviour
 {
     [Header("Forces")]
-    [SerializeField] private float jumpForce = 50f;
     [SerializeField] private float shootForce= 400f;
 
     [Header("Ground collisions")]
@@ -64,15 +63,18 @@ public class MyCharacterController : MonoBehaviour
     }
 
 
-    public void Move(float amount, bool flying, Vector2 dir)
+    public void Move(float amount, float jumpForce, Vector2 dir)
     {
         if (amount < 0 && defaultFacing) FlipCharacter();
         else if (amount > 0 && !defaultFacing) FlipCharacter();
+
         transform.Translate(Vector3.right * amount);
-        if (flying)
+
+        if (jumpForce > 0)
         {
             rb.AddForce(Vector2.up * jumpForce);
         }
+
         if (dir != Vector2.zero)
         {
             //rb.AddForce((defaultFacing ? Vector3.left : Vector3.right) * shootingStrengh);
