@@ -123,7 +123,7 @@ public class EnnemyAI : MonoBehaviour
 
     void ExitShootState()
     {
-        Destroy(attackGO);
+        Destroy(attackGO.gameObject);
     }
 
     GameObject FindPatternByName(string name)

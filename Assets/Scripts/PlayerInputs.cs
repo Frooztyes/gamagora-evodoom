@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.GraphicsBuffer;
 
 public class PlayerInputs : MonoBehaviour
 {
@@ -19,7 +18,8 @@ public class PlayerInputs : MonoBehaviour
 
     private float horizontalMove = 0f;
     private bool flying;
-    private Vector2 shootingDirection;
+    private bool shooting;
+    private Vector2 mousePosition;
 
     // Start is called before the first frame update
     void Start() {}
@@ -39,18 +39,8 @@ public class PlayerInputs : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            shootingDirection = (getMousePosition() - transform.position).normalized;
+            shooting = true;
         }
-    }
-
-    private Vector3 getMousePosition()
-    {
-        Vector3 screenPosDepth = Input.mousePosition;
-        screenPosDepth.z = Vector3.Dot(
-            Camera.main.transform.forward,
-            transform.position - Camera.main.transform.position
-        );
-        return Camera.main.ScreenToWorldPoint(screenPosDepth);
     }
 
     public void OnLanding()
@@ -60,15 +50,16 @@ public class PlayerInputs : MonoBehaviour
 
     private void FixedUpdate()
     {
-        character.UpdateLevitation(flying);
+        character.UpdateLevitation(flying, controller.IsGrounded());
 
         // updating levitation indicator
         radialLevitationIndicator.fillAmount = character.GetLevitationFillAmount();
 
-        controller.Move(horizontalMove * Time.fixedDeltaTime, character.GetJumpForce(flying), shootingDirection);
+        controller.Move(horizontalMove * Time.fixedDeltaTime, character.GetJumpForce(flying), shooting);
 
         flying = false;
-        shootingDirection = Vector2.zero;
+        shooting = false;
+        mousePosition = Vector2.zero;
     }
 
 }

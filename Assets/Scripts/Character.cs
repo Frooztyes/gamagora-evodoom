@@ -50,11 +50,11 @@ public class Character : ScriptableObject
         return currentLevitationCapacity / levitationCapacity;
     }
 
-    public void UpdateLevitation(bool flying)
+    public void UpdateLevitation(bool flying, bool isGrounded)
     {
-        // reduce recovery while flying
+        // reduce recovery while not on ground
         float internalRecoveryByTick = levitationRecoveryPerTick;
-        if (flying)
+        if (!isGrounded)
         {
             internalRecoveryByTick *= levitationReductionFlying;
         }

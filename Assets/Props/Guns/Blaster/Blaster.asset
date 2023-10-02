@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 617af5602a831034d9afdb826dd97fd6, type: 3}
+  m_Name: Blaster
+  m_EditorClassIdentifier: 
+  MaxMagazineCapacity: 3
+  MagazineCapacity: 3
+  RotationReloadSpeed: 10
+  RecoilStrength: 400
+  projectile: {fileID: 1563950132161701042, guid: 75eb89fb5e69cc84688f6c56f3aeda1c, type: 3}
+  GFX: {fileID: 8144141833785818639, guid: 72d61f1c8d9ce094692bbbd08e914b1a, type: 3}
+  Scale: 0.6

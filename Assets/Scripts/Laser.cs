@@ -30,8 +30,17 @@ public class Laser : AttackPattern
         m_transform = GetComponent<Transform>();
         defaultWidth = m_lineRenderer.startWidth;
         endVFX.SetActive(false);
-        transform.rotation = Quaternion.Euler(0f, 0f, startingAngle);
+        if(transform.lossyScale.x > 0)
+        {
+            transform.rotation = Quaternion.Euler(0f, 0f, startingAngle + (90 - startingAngle) * 2);
+        }
+        else
+        {
+            transform.rotation = Quaternion.Euler(0f, 0f, startingAngle);
+
+        }
         m_lineRenderer.startWidth = defaultWidth;
+        StartAttack();
     }
 
     float resetTime = 1f;
@@ -50,7 +59,20 @@ public class Laser : AttackPattern
             return;
         }
 
-        float localRotation = transform.rotation.eulerAngles.z > 180 ? (360.0f - transform.rotation.eulerAngles.z) * -1 : transform.rotation.eulerAngles.z;
+        float localRotation;
+        if (transform.lossyScale.x > 0)
+        {
+            // faire un truc diff
+            //localRotation = transform.rotation.eulerAngles.z < 0 ? transform.rotation.eulerAngles.z + 180 : transform.rotation.eulerAngles.z;
+            localRotation = transform.rotation.eulerAngles.z > 180 ? (360.0f - transform.rotation.eulerAngles.z) * -1 : transform.rotation.eulerAngles.z;
+
+        }
+        else
+        {
+            localRotation = transform.rotation.eulerAngles.z > 180 ? (360.0f - transform.rotation.eulerAngles.z) * -1 : transform.rotation.eulerAngles.z;
+        }
+
+        Debug.Log(localRotation);
         if (localRotation >= endingAndle)
         {
             inReset = true;

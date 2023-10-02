@@ -5,39 +5,40 @@ using UnityEngine.Events;
 
 public class MyCharacterController : MonoBehaviour
 {
-    [Header("Forces")]
-    [SerializeField] private float shootForce= 400f;
-
     [Header("Ground collisions")]
     [SerializeField] private LayerMask ground;
     [SerializeField] private Transform groundChecker;
 
     [Header("Gun")]
-    [SerializeField] private GameObject projectile;
-    [SerializeField] private Transform projectilePosition;
-    [SerializeField] private Transform gun;
-    [SerializeField] private float magazineCapacity;
-    [SerializeField] private float gunRotationSpeed = 2.0f;
-    private Quaternion qTo;
-    private float magazine;
-    private float rotationOffset = 0;
-
-    [SerializeField] private Animation gunAnimation;
-
+    [SerializeField] private Gun gun;
+    [SerializeField] private Transform gunPosition;
+    
     [Header("Landing Events")]
     [SerializeField] private UnityEvent OnLandEvent;
 
     private Rigidbody2D rb;
-
     private bool defaultFacing;
     private bool isGrounded;
+    private Quaternion qTo;
+    private float rotationOffset = 0;
+    private Transform gunGFX;
+    private Animation gunAnimation;
 
     void Start()
     {
-        qTo = gun.transform.rotation;
+        gunGFX = Instantiate(gun.GFX, gunPosition.position, Quaternion.identity).transform;
+        gunGFX.transform.parent = transform;
+        gunGFX.localScale = Vector3.one * gun.Scale;
+        gunAnimation = gunGFX.GetComponent<Animation>();
+        qTo = gunGFX.transform.rotation;
         defaultFacing = transform.localScale.x > 0;
         rb = GetComponent<Rigidbody2D>();
         isGrounded = false;
+    }
+
+    public bool IsGrounded()
+    {
+        return isGrounded;
     }
 
     private void FixedUpdate()
@@ -55,15 +56,16 @@ public class MyCharacterController : MonoBehaviour
             }
         }
 
-        gun.transform.rotation = Quaternion.Slerp(gun.transform.rotation, qTo, Time.fixedDeltaTime * gunRotationSpeed);
-        if (!gunAnimation.isPlaying && magazine == 0)
+        if(gunGFX)
+            gunGFX.transform.rotation = Quaternion.Slerp(gunGFX.transform.rotation, qTo, Time.fixedDeltaTime * gun.RotationReloadSpeed);
+        if (!gunAnimation.isPlaying && gun.MagazineCapacity == 0)
         {
-            magazine = magazineCapacity;
+            gun.Reload();
         }
     }
 
 
-    public void Move(float amount, float jumpForce, Vector2 dir)
+    public void Move(float amount, float jumpForce, bool shooting)
     {
         if (amount < 0 && defaultFacing) FlipCharacter();
         else if (amount > 0 && !defaultFacing) FlipCharacter();
@@ -75,20 +77,30 @@ public class MyCharacterController : MonoBehaviour
             rb.AddForce(Vector2.up * jumpForce);
         }
 
-        if (dir != Vector2.zero)
+        if (shooting)
         {
-            //rb.AddForce((defaultFacing ? Vector3.left : Vector3.right) * shootingStrengh);
-            ShootProjectile(dir);
+            //rb.AddForce((defaultFacing ? Vector3.left : Vector3.right) * gun.RecoilStrength);
+            ShootProjectile();
         }
-    } 
+    }
 
-    private void ShootProjectile(Vector2 dir)
+    private Vector3 getMousePosition()
     {
-        if (magazine <= 0) return;
+        Vector3 screenPosDepth = Input.mousePosition;
+        screenPosDepth.z = Vector3.Dot(
+            Camera.main.transform.forward,
+            transform.position - Camera.main.transform.position
+        );
+        return Camera.main.ScreenToWorldPoint(screenPosDepth);
+    }
 
-        Projectile p = Instantiate(projectile, projectilePosition.position, Quaternion.identity).GetComponent<Projectile>();
+    private void ShootProjectile()
+    {
+        if (gun.MagazineCapacity <= 0) return;
 
-
+        Projectile p = Instantiate(gun.projectile, gunPosition.position, Quaternion.identity).GetComponent<Projectile>();
+        
+        Vector2 dir = (getMousePosition() - gunGFX.GetChild(0).position).normalized;
         if (dir.x < 0 && defaultFacing || dir.x >= 0 && !defaultFacing)
             FlipCharacter();
 
@@ -96,20 +108,11 @@ public class MyCharacterController : MonoBehaviour
         qTo = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - rotationOffset);
         p.setDirection(dir);
 
-        magazine--;
-        if (magazine == 0)
+        gun.MagazineCapacity--;
+        if (gun.MagazineCapacity == 0)
         {
             gunAnimation.Play("Reload");
         }
-        else
-        {
-            //gunAnimator.Play("Shoot");
-        }
-    }
-
-    public bool getFacing()
-    {
-        return defaultFacing;
     }
 
     void FlipCharacter() 
