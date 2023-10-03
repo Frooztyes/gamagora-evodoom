@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Blaster
   m_EditorClassIdentifier: 
   MaxMagazineCapacity: 3
-  MagazineCapacity: 3
-  RotationReloadSpeed: 10
-  RecoilStrength: 400
+  MagazineCapacity: 1
+  RotationReloadSpeed: 1
+  RecoilStrength: 0
   projectile: {fileID: 1563950132161701042, guid: 75eb89fb5e69cc84688f6c56f3aeda1c, type: 3}
   GFX: {fileID: 8144141833785818639, guid: 72d61f1c8d9ce094692bbbd08e914b1a, type: 3}
   Scale: 0.6

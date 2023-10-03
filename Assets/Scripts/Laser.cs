@@ -40,7 +40,6 @@ public class Laser : AttackPattern
 
         }
         m_lineRenderer.startWidth = defaultWidth;
-        StartAttack();
     }
 
     float resetTime = 1f;
@@ -72,7 +71,6 @@ public class Laser : AttackPattern
             localRotation = transform.rotation.eulerAngles.z > 180 ? (360.0f - transform.rotation.eulerAngles.z) * -1 : transform.rotation.eulerAngles.z;
         }
 
-        Debug.Log(localRotation);
         if (localRotation >= endingAndle)
         {
             inReset = true;
@@ -92,8 +90,17 @@ public class Laser : AttackPattern
     {
         HasFinished = false;
         laserStarted = true;
+        restartLaser = true;
         laserSound.Play();
     }
+
+    public override void StopAttack()
+    {
+        restartLaser = false;
+    }
+
+    private bool restartLaser = true;
+
 
     void Update()
     {
@@ -122,7 +129,8 @@ public class Laser : AttackPattern
         inReset = false;
         laserStarted = false;
         m_lineRenderer.startWidth = defaultWidth;
-        Invoke(nameof(StartAttack), cooldown);
+        if(restartLaser)
+            Invoke(nameof(StartAttack), cooldown);
     }
 
     void ShootLaser()

@@ -48,5 +48,5 @@ MonoBehaviour:
   projectile: {fileID: 1563950132161701042, guid: f04b9d458986eff4d9e45d4d53fd81f7, type: 3}
   spread: 45
   bulletPerVolley: 5
-  bulletPerSecond: 2.5
+  bulletPerSecond: 3.5
   IsShooting: 0

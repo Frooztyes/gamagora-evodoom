@@ -79,7 +79,7 @@ public class MyCharacterController : MonoBehaviour
 
         if (shooting)
         {
-            //rb.AddForce((defaultFacing ? Vector3.left : Vector3.right) * gun.RecoilStrength);
+            rb.AddForce((defaultFacing ? Vector3.left : Vector3.right) * gun.RecoilStrength);
             ShootProjectile();
         }
     }

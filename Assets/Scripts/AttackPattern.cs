@@ -7,4 +7,5 @@ public abstract class AttackPattern : MonoBehaviour
     public bool HasFinished = true;
 
     public abstract void StartAttack();
+    public abstract void StopAttack();
 }

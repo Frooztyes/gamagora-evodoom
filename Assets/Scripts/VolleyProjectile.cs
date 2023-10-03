@@ -40,9 +40,15 @@ public class VolleyProjectile : AttackPattern
         //Projectile p = Instantiate(projectile, projectilePosition.position, Quaternion.identity).GetComponent<Projectile>();
         InvokeRepeating("ShootProjectile", 0, 1.0f/bulletPerSecond);
     }
+
     public override void StartAttack()
     {
         IsShooting = true;
+    }
+
+    public override void StopAttack()
+    {
+        IsShooting = false;
     }
 
     void ShootProjectile()
