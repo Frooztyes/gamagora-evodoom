@@ -15,8 +15,9 @@ MonoBehaviour:
   MaxHealth: 100
   Health: 100
   RunSpeed: 20
+  JumpForce: 80
   levitationCapacity: 40
-  currentLevitationCapacity: 33
+  currentLevitationCapacity: 11.666621
   levitationRecoveryPerTick: 1
   levitationUsedPerTick: 1
   levitationReductionFlying: 0.333333

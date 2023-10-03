@@ -14,11 +14,13 @@ public class Laser : AttackPattern
     [SerializeField] private GameObject endVFX;
     [SerializeField] private float cooldown;
 
-
     [SerializeField] private float startingAngle;
     [SerializeField] private float endingAndle;
 
     [SerializeField] float acceleration = 0.01f;
+    [SerializeField] int damage = 10;
+
+    private PolygonCollider2D myCollider;
 
     private float currentSpeed;
     private bool inReset = false;
@@ -28,18 +30,17 @@ public class Laser : AttackPattern
     void Start()
     {
         m_transform = GetComponent<Transform>();
+        myCollider = GetComponent<PolygonCollider2D>();
         defaultWidth = m_lineRenderer.startWidth;
-        endVFX.SetActive(false);
-        if(transform.lossyScale.x > 0)
-        {
-            transform.rotation = Quaternion.Euler(0f, 0f, startingAngle + (90 - startingAngle) * 2);
-        }
-        else
-        {
-            transform.rotation = Quaternion.Euler(0f, 0f, startingAngle);
+        // deactivate in editor because of gizmos issue
+        m_lineRenderer.useWorldSpace = true;
+        endVFX.SetActive(false); 
+        
+        transform.rotation = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, startingAngle);
 
-        }
         m_lineRenderer.startWidth = defaultWidth;
+
+
     }
 
     float resetTime = 1f;
@@ -125,7 +126,7 @@ public class Laser : AttackPattern
 
     void ResetLaser()
     {
-        transform.rotation = Quaternion.Euler(0f, 0f, startingAngle);
+        transform.rotation = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, startingAngle);
         inReset = false;
         laserStarted = false;
         m_lineRenderer.startWidth = defaultWidth;
@@ -139,6 +140,11 @@ public class Laser : AttackPattern
         {
             RaycastHit2D _hit = Physics2D.Raycast(m_transform.position, transform.right, defDistanceRay, mask);
             Draw2DRay(laserFirePoint.position, _hit.point);
+            if (LayerMask.LayerToName(_hit.collider.gameObject.layer) == "Player")
+            {
+                MyCharacterController player = _hit.collider.gameObject.GetComponent<MyCharacterController>();
+                player.TakeDamage(damage, player.transform.position.x < transform.position.x);
+            }
         } 
         else
         {

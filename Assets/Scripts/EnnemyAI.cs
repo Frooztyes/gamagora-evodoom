@@ -17,6 +17,7 @@ public class EnnemyAI : MonoBehaviour
 
 
     [SerializeField] private Ennemy ennemy;
+    private Ennemy editableEnnemy;
 
     enum State
     {
@@ -57,10 +58,11 @@ public class EnnemyAI : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        editableEnnemy = Instantiate(ennemy);
         pivot = transform.GetChild(0).gameObject;
-        ennemyGFX = Instantiate(ennemy.VFX, transform.position, Quaternion.identity);
+        ennemyGFX = Instantiate(editableEnnemy.VFX, transform.position, Quaternion.identity);
         ennemyGFX.transform.parent = pivot.transform;
-        ennemyGFX.transform.localPosition = ennemy.pivotPoint;
+        ennemyGFX.transform.localPosition = editableEnnemy.pivotPoint;
         attackPosition = ennemyGFX.transform.GetChild(0);
         animator = ennemyGFX.GetComponent<Animator>();
 
@@ -85,10 +87,11 @@ public class EnnemyAI : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        if (editableEnnemy == null) editableEnnemy = Instantiate(ennemy);
         Handles.color = Color.red;
-        Handles.DrawWireDisc(transform.position, transform.forward, ennemy.AggroRadius);
+        Handles.DrawWireDisc(transform.position, transform.forward, editableEnnemy.AggroRadius);
         Handles.color = Color.green;
-        Handles.DrawWireDisc(transform.position, transform.forward, ennemy.ShootRadius);
+        Handles.DrawWireDisc(transform.position, transform.forward, editableEnnemy.ShootRadius);
     }
 
     void OnPathComplete(Path p)
@@ -102,15 +105,15 @@ public class EnnemyAI : MonoBehaviour
 
     bool IsTargetInAggroRange()
     {
-        return Vector2.Distance(transform.position, target.position) <= ennemy.AggroRadius;
+        return Vector2.Distance(transform.position, target.position) <= editableEnnemy.AggroRadius;
     }
 
     bool IsTargetInShootingRange()
     {
-        if (Vector2.Distance(attackPosition.position, target.position) <= ennemy.ShootRadius)
+        if (Vector2.Distance(attackPosition.position, target.position) <= editableEnnemy.ShootRadius)
         {
             Vector3 dirTarget = (attackPosition.position - target.position).normalized;
-            RaycastHit2D hit = Physics2D.Raycast(attackPosition.position, -dirTarget, ennemy.ShootRadius, canSee);
+            RaycastHit2D hit = Physics2D.Raycast(attackPosition.position, -dirTarget, editableEnnemy.ShootRadius, canSee);
             return hit && hit.collider.gameObject == target.gameObject;
         }
         return false;
@@ -137,7 +140,7 @@ public class EnnemyAI : MonoBehaviour
     void EnterShootState()
     {
         GameObject go = null;
-        switch (ennemy.AttackPattern)
+        switch (editableEnnemy.AttackPattern)
         {
             case Ennemy.AttackType.VOLLEY:
                 
@@ -147,7 +150,7 @@ public class EnnemyAI : MonoBehaviour
                     attackGO = Instantiate(go, attackPosition.position, Quaternion.identity).GetComponent<VolleyProjectile>();
 
                     attackGO.transform.parent = attackPosition;
-                    if (target.position.x > transform.position.x)
+                    if (target.position.x < transform.position.x)
                         attackGO.transform.localScale = new Vector3(-attackGO.transform.localScale.x, attackGO.transform.localScale.y, attackGO.transform.localScale.z);
                     
                     attackGO.StartAttack();
@@ -211,7 +214,7 @@ public class EnnemyAI : MonoBehaviour
         }
 
         if (!IsTargetInAggroRange() && currentState == State.IDLE) return State.IDLE;
-        if (!IsTargetInAggroRange() && (currentState == State.RUN || currentState == State.SHOOT) && ennemy.CanLooseAggro)
+        if (!IsTargetInAggroRange() && (currentState == State.RUN || currentState == State.SHOOT) && editableEnnemy.CanLooseAggro)
         {
             if (State.SHOOT == currentState) ExitShootState();
             EnterIdleState();
@@ -234,7 +237,7 @@ public class EnnemyAI : MonoBehaviour
         reachedEndOfPath = false;
 
         Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
-        Vector2 force = direction * ennemy.Speed * Time.deltaTime;
+        Vector2 force = direction * editableEnnemy.Speed * Time.deltaTime;
         animator.SetFloat("Speed", force.magnitude);
 
         rb.AddForce(force);

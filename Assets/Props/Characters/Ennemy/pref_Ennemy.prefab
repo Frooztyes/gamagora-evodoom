@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7147222026646277818}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Pivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 3737106598306303360}
   - component: {fileID: 843702542616652091}
   - component: {fileID: 6430770745821611393}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: pref_Ennemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -111,7 +111,6 @@ MonoBehaviour:
   canSee:
     serializedVersion: 2
     m_Bits: 72
-  pivot: {fileID: 5821333476726388583}
   patterns:
   - name: VOLLEY
     attackPattern: {fileID: 1165883099853747923, guid: d6a81b768448c3b41b963bfab0a17a35, type: 3}

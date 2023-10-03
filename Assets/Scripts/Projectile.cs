@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Projectile : MonoBehaviour
@@ -7,8 +8,10 @@ public class Projectile : MonoBehaviour
     [SerializeField] private float velocity = 10f;
     [SerializeField] private float accelerationPerTick = 0.5f;
 
-    private bool initialized = false;
+    private int damage = 0;
 
+    private bool initialized = false;
+    
     void Update()
     {
         if (!initialized) return;
@@ -16,11 +19,26 @@ public class Projectile : MonoBehaviour
         transform.Translate(Time.deltaTime * velocity * Vector2.right);
     }
 
-    public void setDirection(Vector2 dir)
+    public void setStatistics(Vector2 dir, int damage)
     {
         //if (dir.x < 0) transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        this.damage = damage;
         initialized = true;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        int layer = collision.gameObject.layer;
+        if (layer == LayerMask.NameToLayer("Player"))
+        {
+            
+            collision.gameObject.GetComponent<MyCharacterController>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
+        }
+        if (layer == LayerMask.NameToLayer("Ground"))
+        {
+            Destroy(gameObject);
+        }
     }
 }

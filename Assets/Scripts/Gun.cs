@@ -13,6 +13,8 @@ public class Gun : ScriptableObject
 
     public float RecoilStrength = 0f;
 
+    public int Damage;
+
     public GameObject projectile;
     public GameObject GFX;
     public float Scale;

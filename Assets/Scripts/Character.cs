@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,8 +20,11 @@ public class Character : ScriptableObject
     public float currentLevitationCapacity = 40f;
     public float levitationRecoveryPerTick = 1f;
     public float levitationUsedPerTick = 1f;
+
     [Range(0f, 1f)]
     public float levitationReductionFlying = 1 / 3;
+
+    public float InvincibleTime = 0.5f;
 
     private bool isDead = true;
 
@@ -63,5 +67,10 @@ public class Character : ScriptableObject
         currentLevitationCapacity += flying ? -levitationUsedPerTick : internalRecoveryByTick;
         // clamping capacity to not be less than 0 and being more than the capacity
         currentLevitationCapacity = Mathf.Clamp(currentLevitationCapacity, 0, levitationCapacity);
+    }
+
+    public float GetHealthAmount()
+    {
+        return Health / MaxHealth;
     }
 }

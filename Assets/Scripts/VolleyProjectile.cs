@@ -8,6 +8,9 @@ public class VolleyProjectile : AttackPattern
     [SerializeField] private float spread;
     [SerializeField] private int bulletPerVolley;
     [SerializeField] private float bulletPerSecond;
+    [SerializeField] private int damage;
+
+    private AudioSource projectileSound;
 
     int idAngle;
     bool upwardSpread;
@@ -26,7 +29,7 @@ public class VolleyProjectile : AttackPattern
         {
             float percent = (1.0f * i / (bulletPerVolley - 1));
             float angle = (spread * 2.0f * percent) - spread;
-            Vector2 dir = Quaternion.Euler(0f, 0f, angle) * -transform.right * (transform.lossyScale.x < 0 ? -1 : 1);
+            Vector2 dir = Quaternion.Euler(0f, 0f, angle) * transform.right * (transform.lossyScale.x < 0 ? -1 : 1);
             Gizmos.DrawRay(transform.position, dir);
         }
     }
@@ -35,6 +38,7 @@ public class VolleyProjectile : AttackPattern
     // Start is called before the first frame update
     void Start()
     {
+        projectileSound = GetComponent<AudioSource>();
         idAngle = Random.Range(0, bulletPerVolley);
         upwardSpread = true;
         //Projectile p = Instantiate(projectile, projectilePosition.position, Quaternion.identity).GetComponent<Projectile>();
@@ -56,10 +60,11 @@ public class VolleyProjectile : AttackPattern
         if (!IsShooting) return;
         float percent = 1.0f * idAngle / (bulletPerVolley - 1);
         float angle = (spread * 2.0f * percent) - spread;
-        Vector2 dir = Quaternion.Euler(0f, 0f, angle) * -transform.right * (transform.lossyScale.x < 0 ? -1 : 1);
+        Vector2 dir = Quaternion.Euler(0f, 0f, angle) * transform.right * (transform.lossyScale.x < 0 ? -1 : 1);
 
         Projectile p = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Projectile>();
-        p.setDirection(dir);
+        projectileSound.Play();
+        p.setStatistics(dir, damage);
 
         idAngle += upwardSpread ? 1 : -1;
         if(idAngle >= bulletPerVolley)

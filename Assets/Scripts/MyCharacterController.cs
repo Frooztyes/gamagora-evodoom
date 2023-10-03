@@ -2,9 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.TextCore.Text;
+using UnityEngine.UI;
 
 public class MyCharacterController : MonoBehaviour
 {
+    [SerializeField] private Character character;
+
     [Header("Ground collisions")]
     [SerializeField] private LayerMask ground;
     [SerializeField] private Transform groundChecker;
@@ -16,6 +20,11 @@ public class MyCharacterController : MonoBehaviour
     [Header("Landing Events")]
     [SerializeField] private UnityEvent OnLandEvent;
 
+    [SerializeField] private Animator animator;
+
+    private Character editableChar;
+    private Gun editableGun;
+
     private Rigidbody2D rb;
     private bool defaultFacing;
     private bool isGrounded;
@@ -24,22 +33,34 @@ public class MyCharacterController : MonoBehaviour
     private Transform gunGFX;
     private Animation gunAnimation;
 
+    private Image levitationIndicator;
+    private Image healthIndicator;
+    private SpriteRenderer sprite;
+
     void Start()
     {
-        gunGFX = Instantiate(gun.GFX, gunPosition.position, Quaternion.identity).transform;
+        sprite = GetComponent<SpriteRenderer>();
+        editableChar = Instantiate(character);
+        editableGun = Instantiate(gun);
+        gunGFX = Instantiate(editableGun.GFX, gunPosition.position, Quaternion.identity).transform;
         gunGFX.transform.parent = transform;
-        gunGFX.localScale = Vector3.one * gun.Scale;
+        gunGFX.localScale = Vector3.one * editableGun.Scale;
         gunAnimation = gunGFX.GetComponent<Animation>();
         qTo = gunGFX.transform.rotation;
         defaultFacing = transform.localScale.x > 0;
         rb = GetComponent<Rigidbody2D>();
         isGrounded = false;
+        levitationIndicator = GameObject.FindGameObjectWithTag("LevitationBar").GetComponent<Image>();
+        healthIndicator = GameObject.FindGameObjectWithTag("HealthBar").GetComponent<Image>();
+        healthIndicator.fillAmount = editableChar.GetHealthAmount();
     }
 
     public bool IsGrounded()
     {
         return isGrounded;
     }
+
+    private bool isFlying;
 
     private void FixedUpdate()
     {
@@ -49,39 +70,81 @@ public class MyCharacterController : MonoBehaviour
 
         foreach (Collider2D col in  colliders)
         {
-            if(col.gameObject != gameObject)
+            if(col.gameObject != gameObject && !isFlying)
             {
                 isGrounded = true;
-                OnLandEvent.Invoke();
+                animator.SetBool("IsJumping", false);
             }
         }
 
         if(gunGFX)
-            gunGFX.transform.rotation = Quaternion.Slerp(gunGFX.transform.rotation, qTo, Time.fixedDeltaTime * gun.RotationReloadSpeed);
-        if (!gunAnimation.isPlaying && gun.MagazineCapacity == 0)
+            gunGFX.transform.rotation = Quaternion.Slerp(gunGFX.transform.rotation, qTo, Time.fixedDeltaTime * editableGun.RotationReloadSpeed);
+        if (!gunAnimation.isPlaying && editableGun.MagazineCapacity == 0)
         {
-            gun.Reload();
+            editableGun.Reload();
         }
     }
 
 
-    public void Move(float amount, float jumpForce, bool shooting)
+    public void Move(float amount, bool flying, bool shooting)
     {
+        animator.SetFloat("Speed", Mathf.Abs(amount));
+        isFlying = flying;
+        if (flying)
+        {
+            animator.SetBool("IsJumping", flying);
+        }
+
+        amount *= editableChar.RunSpeed;
+
         if (amount < 0 && defaultFacing) FlipCharacter();
         else if (amount > 0 && !defaultFacing) FlipCharacter();
 
         transform.Translate(Vector3.right * amount);
 
-        if (jumpForce > 0)
-        {
-            rb.AddForce(Vector2.up * jumpForce);
-        }
+        rb.AddForce(Vector2.up * editableChar.GetJumpForce(flying));
+        editableChar.UpdateLevitation(flying, isGrounded);
+        levitationIndicator.fillAmount = editableChar.GetLevitationFillAmount();
 
         if (shooting)
         {
-            rb.AddForce((defaultFacing ? Vector3.left : Vector3.right) * gun.RecoilStrength);
+            rb.AddForce((defaultFacing ? Vector3.left : Vector3.right) * editableGun.RecoilStrength);
             ShootProjectile();
         }
+    }
+
+    // variable de framing invincible
+    private bool isInvincible;
+
+    public void TakeDamage(int damage, bool fromRight)
+    {
+        if (isInvincible) return;
+        editableChar.TakeDamage(damage);
+        healthIndicator.fillAmount = editableChar.GetHealthAmount();
+        isInvincible = true;
+
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = 0;
+        rb.AddForce((fromRight ? Vector3.left : Vector3.right) * 200);
+        rb.AddForce(Vector2.up * 500);
+
+        InvokeRepeating(nameof(BlinkRed), 0, 0.2f);
+        Invoke(nameof(EndInvincibleFrame), editableChar.InvincibleTime);
+
+    }
+
+    private bool IsRed = false;
+    public void BlinkRed()
+    {
+        IsRed = !IsRed;
+        sprite.color = IsRed ? Color.red : Color.white;
+    }
+
+    private void EndInvincibleFrame()
+    {
+        CancelInvoke(nameof(BlinkRed));
+        isInvincible = false;
+        if(IsRed) BlinkRed();
     }
 
     private Vector3 getMousePosition()
@@ -96,9 +159,9 @@ public class MyCharacterController : MonoBehaviour
 
     private void ShootProjectile()
     {
-        if (gun.MagazineCapacity <= 0) return;
+        if (editableGun.MagazineCapacity <= 0) return;
 
-        Projectile p = Instantiate(gun.projectile, gunPosition.position, Quaternion.identity).GetComponent<Projectile>();
+        Projectile p = Instantiate(editableGun.projectile, gunPosition.position, Quaternion.identity).GetComponent<Projectile>();
         
         Vector2 dir = (getMousePosition() - gunGFX.GetChild(0).position).normalized;
         if (dir.x < 0 && defaultFacing || dir.x >= 0 && !defaultFacing)
@@ -106,10 +169,10 @@ public class MyCharacterController : MonoBehaviour
 
         // angle pointing toward mouse position in the good direction
         qTo = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - rotationOffset);
-        p.setDirection(dir);
+        p.setStatistics(dir, editableGun.Damage);
 
-        gun.MagazineCapacity--;
-        if (gun.MagazineCapacity == 0)
+        editableGun.MagazineCapacity--;
+        if (editableGun.MagazineCapacity == 0)
         {
             gunAnimation.Play("Reload");
         }
