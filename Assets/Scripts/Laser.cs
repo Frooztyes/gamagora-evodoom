@@ -20,8 +20,6 @@ public class Laser : AttackPattern
     [SerializeField] float acceleration = 0.01f;
     [SerializeField] int damage = 10;
 
-    private PolygonCollider2D myCollider;
-
     private float currentSpeed;
     private bool inReset = false;
     private bool laserStarted = false;
@@ -30,7 +28,6 @@ public class Laser : AttackPattern
     void Start()
     {
         m_transform = GetComponent<Transform>();
-        myCollider = GetComponent<PolygonCollider2D>();
         defaultWidth = m_lineRenderer.startWidth;
         // deactivate in editor because of gizmos issue
         m_lineRenderer.useWorldSpace = true;

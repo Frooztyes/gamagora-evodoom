@@ -183,7 +183,7 @@ public class MyCharacterController : MonoBehaviour
 
         // angle pointing toward mouse position in the good direction
         qTo = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - rotationOffset);
-        p.setStatistics(dir, editableGun.Damage);
+        p.SetStatistics(dir, editableGun.Damage);
 
         editableGun.MagazineCapacity--;
         if (editableGun.MagazineCapacity == 0)

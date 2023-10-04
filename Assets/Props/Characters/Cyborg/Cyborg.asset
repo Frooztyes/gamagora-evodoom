@@ -21,3 +21,4 @@ MonoBehaviour:
   levitationRecoveryPerTick: 1
   levitationUsedPerTick: 1
   levitationReductionFlying: 0.333333
+  InvincibleTime: 2

@@ -19,9 +19,8 @@ public class Projectile : MonoBehaviour
         transform.Translate(Time.deltaTime * velocity * Vector2.right);
     }
 
-    public void setStatistics(Vector2 dir, int damage)
+    public void SetStatistics(Vector2 dir, int damage)
     {
-        //if (dir.x < 0) transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         this.damage = damage;
@@ -31,9 +30,8 @@ public class Projectile : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         int layer = collision.gameObject.layer;
-        if (layer == LayerMask.NameToLayer("Player"))
+        if (layer == LayerMask.NameToLayer("Player") && gameObject.layer != collision.gameObject.layer)
         {
-            
             collision.gameObject.GetComponent<MyCharacterController>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
         }
         if (layer == LayerMask.NameToLayer("Ground"))

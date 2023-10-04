@@ -64,7 +64,7 @@ public class VolleyProjectile : AttackPattern
 
         Projectile p = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Projectile>();
         projectileSound.Play();
-        p.setStatistics(dir, damage);
+        p.SetStatistics(dir, damage);
 
         idAngle += upwardSpread ? 1 : -1;
         if(idAngle >= bulletPerVolley)

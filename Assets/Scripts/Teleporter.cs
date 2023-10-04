@@ -32,8 +32,7 @@ public class Teleporter : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E) && collided != null)
         {
             collided.transform.position = Arrival.position + (collided.GetComponent<SpriteRenderer>().bounds.size.y) * Vector3.up;
-            
-        } 
+        }
     }
 
     private void OnTriggerExit2D(Collider2D collision)

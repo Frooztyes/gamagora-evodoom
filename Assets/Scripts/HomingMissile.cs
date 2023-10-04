@@ -8,6 +8,7 @@ public class HomingMissile : MonoBehaviour
 
     [SerializeField] private float speed = 5f;
     [SerializeField] private float rotateSpeed = 200f;
+    [SerializeField] private float acceleration = 0.01f;
     private Transform target;
 
     public GameObject explosionEffect;
@@ -32,12 +33,21 @@ public class HomingMissile : MonoBehaviour
         rb.angularVelocity = -rotateAmount * rotateSpeed;
 
         rb.velocity = transform.up * speed;
+        speed += acceleration;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Instantiate(explosionEffect, transform.position, transform.rotation);
-        Destroy(gameObject);
+        string layer = LayerMask.LayerToName(collision.gameObject.layer);
+        if (layer == "Player")
+        {
+            Destroy(gameObject);
+        }
+        if (layer == "Ground")
+        {
+            Destroy(gameObject);
+        }
+        //Instantiate(explosionEffect, transform.position, transform.rotation);
     }
 
 }
