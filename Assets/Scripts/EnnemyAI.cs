@@ -75,6 +75,7 @@ public class EnnemyAI : MonoBehaviour
 
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
+        rb.gravityScale = editableEnnemy.GravityScale;
         currentState = State.IDLE;
         InvokeRepeating("UpdatePath", 0f, .5f);
     }
@@ -206,7 +207,9 @@ public class EnnemyAI : MonoBehaviour
         }
 
         if (IsTargetInAggroRange() && currentState == State.RUN) return State.RUN;
-        else if (IsTargetInAggroRange() && !IsTargetInShootingRange() && (currentState == State.IDLE || currentState == State.SHOOT))
+        else if (IsTargetInAggroRange() && !IsTargetInShootingRange() 
+            && (currentState == State.IDLE || currentState == State.SHOOT)
+            && editableEnnemy.CanMove)
         {
             if (State.SHOOT == currentState) ExitShootState();
             EnterRunState();

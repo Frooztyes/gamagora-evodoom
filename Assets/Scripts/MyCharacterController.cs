@@ -83,13 +83,19 @@ public class MyCharacterController : MonoBehaviour
         {
             editableGun.Reload();
         }
+
+        if(isGrounded && isStunned)
+        {
+            isStunned = false;
+        }
     }
 
 
     public void Move(float amount, bool flying, bool shooting)
     {
-        animator.SetFloat("Speed", Mathf.Abs(amount));
         isFlying = flying;
+        if (isStunned) return;
+        animator.SetFloat("Speed", Mathf.Abs(amount));
         if (flying)
         {
             animator.SetBool("IsJumping", flying);
@@ -115,6 +121,7 @@ public class MyCharacterController : MonoBehaviour
 
     // variable de framing invincible
     private bool isInvincible;
+    private bool isStunned = false;
 
     public void TakeDamage(int damage, bool fromRight)
     {
@@ -125,8 +132,15 @@ public class MyCharacterController : MonoBehaviour
 
         rb.velocity = Vector3.zero;
         rb.angularVelocity = 0;
+        if (isFlying || !isGrounded)
+        {
+            isStunned = true;
+        } 
+        else
+        {
+            rb.AddForce(Vector2.up * 500);
+        }
         rb.AddForce((fromRight ? Vector3.left : Vector3.right) * 200);
-        rb.AddForce(Vector2.up * 500);
 
         InvokeRepeating(nameof(BlinkRed), 0, 0.2f);
         Invoke(nameof(EndInvincibleFrame), editableChar.InvincibleTime);

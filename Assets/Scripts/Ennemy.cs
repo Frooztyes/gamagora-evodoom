@@ -10,7 +10,8 @@ public class Ennemy : ScriptableObject
         VOLLEY,
         LASER,
         SHOOT,
-        MELEE
+        MELEE,
+        ROCKET
     }
 
     [Header("Attack attribute")]
@@ -19,8 +20,10 @@ public class Ennemy : ScriptableObject
     public float ShootRadius = 0;
 
     public float Speed = 0;
+    public float GravityScale = 0;
 
     public bool CanLooseAggro = false;
+    public bool CanMove = true;
 
     public AttackType AttackPattern;
 
