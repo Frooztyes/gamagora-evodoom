@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pivotPoint: {x: 0, y: 0}
   AggroRadius: 0
-  ShootRadius: 40
+  ShootRadius: 20
   Speed: 0
   GravityScale: 1
   CanLooseAggro: 1
   CanMove: 0
-  AttackPattern: 0
+  CanRotate: 0
+  AttackPattern: 4
   VFX: {fileID: 6999560720954660049, guid: e9144035a68c2ce4b8ea8ba6019f2bf8, type: 3}

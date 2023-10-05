@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -9,6 +10,8 @@ public class HomingMissile : MonoBehaviour
     [SerializeField] private float speed = 5f;
     [SerializeField] private float rotateSpeed = 200f;
     [SerializeField] private float acceleration = 0.01f;
+    [SerializeField] private int damage = 10;
+    [SerializeField] private float explosionRadius = 10f;
     private Transform target;
 
     public GameObject explosionEffect;
@@ -21,6 +24,7 @@ public class HomingMissile : MonoBehaviour
         target = GameObject.FindGameObjectWithTag("Player").transform;
         rb = GetComponent<Rigidbody2D>();
     }
+
 
     void FixedUpdate()
     {
@@ -41,10 +45,17 @@ public class HomingMissile : MonoBehaviour
         string layer = LayerMask.LayerToName(collision.gameObject.layer);
         if (layer == "Player")
         {
+            collision.gameObject.GetComponent<MyCharacterController>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
             Destroy(gameObject);
         }
         if (layer == "Ground")
         {
+            var hitColliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius, 1 << LayerMask.NameToLayer("Player"));
+            foreach(Collider2D i in hitColliders)
+            {
+                layer = LayerMask.LayerToName(i.gameObject.layer);
+                i.gameObject.GetComponent<MyCharacterController>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
+            }
             Destroy(gameObject);
         }
         //Instantiate(explosionEffect, transform.position, transform.rotation);

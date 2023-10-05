@@ -173,6 +173,20 @@ public class EnnemyAI : MonoBehaviour
                 break;
             case Ennemy.AttackType.MELEE:
                 break;
+
+            case Ennemy.AttackType.ROCKET:
+                Debug.Log("rocket");
+                if(go = FindPatternByName("ROCKET"))
+                {
+                    attackGO = Instantiate(go, attackPosition.position, go.transform.rotation).GetComponent<RocketPattern>();
+                    attackGO.transform.Rotate(Vector2.up * 180);
+                    attackGO.transform.parent = attackPosition;
+                    attackGO.StartAttack();
+                }
+                break;
+
+
+
             default:
                 break;
         }
@@ -276,22 +290,39 @@ public class EnnemyAI : MonoBehaviour
     void StateShootTick()
     {
         bool isBehind = target.position.x < transform.position.x;
-        if (!isBehind)
+        if(editableEnnemy.CanRotate)
         {
-            ennemyGFX.transform.localScale = new Vector3(
-                Mathf.Abs(ennemyGFX.transform.localScale.x),
-                ennemyGFX.transform.localScale.y,
-                ennemyGFX.transform.localScale.z
-            );
+            if (!isBehind)
+            {
+                ennemyGFX.transform.localScale = new Vector3(
+                    Mathf.Abs(ennemyGFX.transform.localScale.x),
+                    ennemyGFX.transform.localScale.y,
+                    ennemyGFX.transform.localScale.z
+                );
+            }
+            else if (isBehind)
+            {
+                ennemyGFX.transform.localScale = new Vector3(
+                    -Mathf.Abs(ennemyGFX.transform.localScale.x),
+                    ennemyGFX.transform.localScale.y,
+                    ennemyGFX.transform.localScale.z
+                );
+            }
         }
-        else if (isBehind)
+
+        switch (editableEnnemy.AttackPattern)
         {
-            ennemyGFX.transform.localScale = new Vector3(
-                -Mathf.Abs(ennemyGFX.transform.localScale.x),
-                ennemyGFX.transform.localScale.y,
-                ennemyGFX.transform.localScale.z
-            );
-        }
+            case Ennemy.AttackType.VOLLEY:
+                break;
+            case Ennemy.AttackType.LASER:
+                break;
+            case Ennemy.AttackType.SHOOT:
+                break;
+            case Ennemy.AttackType.MELEE:
+                break;
+            case Ennemy.AttackType.ROCKET:
+                break;
+        } 
     }
 
     // Update is called once per frame

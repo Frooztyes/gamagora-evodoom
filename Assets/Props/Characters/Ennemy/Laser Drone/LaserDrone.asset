@@ -16,6 +16,8 @@ MonoBehaviour:
   AggroRadius: 40
   ShootRadius: 30
   Speed: 200
+  GravityScale: 0
   CanLooseAggro: 1
+  CanMove: 1
   AttackPattern: 1
   VFX: {fileID: 6940302352937441953, guid: 39a2362b0d0b43f4cbea79d34f0d36a4, type: 3}

@@ -24,6 +24,7 @@ public class Ennemy : ScriptableObject
 
     public bool CanLooseAggro = false;
     public bool CanMove = true;
+    public bool CanRotate = true;
 
     public AttackType AttackPattern;
 
