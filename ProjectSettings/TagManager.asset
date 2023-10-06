@@ -6,6 +6,7 @@ TagManager:
   tags:
   - HealthBar
   - LevitationBar
+  - Ennemy
   layers:
   - Default
   - TransparentFX

@@ -20,10 +20,14 @@ public class MyCharacterController : MonoBehaviour
     [Header("Landing Events")]
     [SerializeField] private UnityEvent OnLandEvent;
 
+    [Header("Sounds")]
+    [SerializeField] private List<AudioClip> walkingSounds;
+
     [SerializeField] private Animator animator;
 
     private Character editableChar;
     private Gun editableGun;
+    private AudioSource characterAudioSource;
 
     private Rigidbody2D rb;
     private bool defaultFacing;
@@ -35,6 +39,7 @@ public class MyCharacterController : MonoBehaviour
 
     private Image levitationIndicator;
     private Image healthIndicator;
+    private AudioSource[] gunSounds;
     private SpriteRenderer sprite;
 
     void Start()
@@ -46,6 +51,7 @@ public class MyCharacterController : MonoBehaviour
         gunGFX.transform.parent = transform;
         gunGFX.localScale = Vector3.one * editableGun.Scale;
         gunAnimation = gunGFX.GetComponent<Animation>();
+        gunSounds = gunGFX.GetComponents<AudioSource>();
         qTo = gunGFX.transform.rotation;
         defaultFacing = transform.localScale.x > 0;
         rb = GetComponent<Rigidbody2D>();
@@ -53,6 +59,7 @@ public class MyCharacterController : MonoBehaviour
         levitationIndicator = GameObject.FindGameObjectWithTag("LevitationBar").GetComponent<Image>();
         healthIndicator = GameObject.FindGameObjectWithTag("HealthBar").GetComponent<Image>();
         healthIndicator.fillAmount = editableChar.GetHealthAmount();
+        characterAudioSource = GetComponent<AudioSource>();
     }
 
     public bool IsGrounded()
@@ -78,7 +85,7 @@ public class MyCharacterController : MonoBehaviour
         }
 
         if(gunGFX)
-            gunGFX.transform.rotation = Quaternion.Slerp(gunGFX.transform.rotation, qTo, Time.fixedDeltaTime * editableGun.RotationReloadSpeed);
+            gunGFX.transform.rotation = Quaternion.Slerp(gunGFX.transform.rotation, qTo, Time.fixedDeltaTime * editableGun.RotationSpeed);
         if (!gunAnimation.isPlaying && editableGun.MagazineCapacity == 0)
         {
             editableGun.Reload();
@@ -89,10 +96,16 @@ public class MyCharacterController : MonoBehaviour
             isStunned = false;
         }
     }
-
+    void PlayRandomWalkingSound()
+    {
+        int randomIndex = Random.Range(0, walkingSounds.Count);
+        characterAudioSource.clip = walkingSounds[randomIndex];
+        characterAudioSource.Play();
+    }
 
     public void Move(float amount, bool flying, bool shooting)
     {
+        if (!characterAudioSource.isPlaying) characterAudioSource.clip = null;
         isFlying = flying;
         if (isStunned) return;
         animator.SetFloat("Speed", Mathf.Abs(amount));
@@ -101,12 +114,14 @@ public class MyCharacterController : MonoBehaviour
             animator.SetBool("IsJumping", flying);
         }
 
-        amount *= editableChar.RunSpeed;
+        amount *= editableChar.MoveSpeed;
 
         if (amount < 0 && defaultFacing) FlipCharacter();
         else if (amount > 0 && !defaultFacing) FlipCharacter();
 
         transform.Translate(Vector3.right * amount);
+        if(Mathf.Abs(amount) > 0.01f && !characterAudioSource.isPlaying && !flying && isGrounded)
+            PlayRandomWalkingSound();
 
         rb.AddForce(Vector2.up * editableChar.GetJumpForce(flying));
         editableChar.UpdateLevitation(flying, isGrounded);
@@ -176,19 +191,22 @@ public class MyCharacterController : MonoBehaviour
         if (editableGun.MagazineCapacity <= 0) return;
 
         Projectile p = Instantiate(editableGun.projectile, gunPosition.position, Quaternion.identity).GetComponent<Projectile>();
-        
+        foreach (AudioSource gunSound in gunSounds)
+        {
+            gunSound.Play();
+        }
         Vector2 dir = (getMousePosition() - gunGFX.GetChild(0).position).normalized;
         if (dir.x < 0 && defaultFacing || dir.x >= 0 && !defaultFacing)
             FlipCharacter();
 
         // angle pointing toward mouse position in the good direction
         qTo = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - rotationOffset);
-        p.SetStatistics(dir, editableGun.Damage);
+        p.SetStatistics(dir, editableGun.Damage, gameObject.layer);
 
         editableGun.MagazineCapacity--;
         if (editableGun.MagazineCapacity == 0)
         {
-            gunAnimation.Play("Reload");
+            gunAnimation.Play();
         }
     }
 

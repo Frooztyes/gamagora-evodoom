@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8398646191370143552}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: AttackPosition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 5544101621511323486}
   - component: {fileID: 5502768739235017841}
   - component: {fileID: 377162292981245356}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: pref_RocketLauncher
   m_TagString: Untagged
   m_Icon: {fileID: 0}

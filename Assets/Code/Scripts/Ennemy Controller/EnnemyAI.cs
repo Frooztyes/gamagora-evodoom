@@ -5,6 +5,7 @@ using Pathfinding;
 using UnityEditor;
 using System;
 using Unity.VisualScripting;
+using UnityEngine.Rendering.PostProcessing;
 
 public class EnnemyAI : MonoBehaviour
 {
@@ -54,6 +55,7 @@ public class EnnemyAI : MonoBehaviour
 
     Seeker seeker;
     Rigidbody2D rb;
+    private SpriteRenderer sprite;
 
     // Start is called before the first frame update
     void Start()
@@ -63,6 +65,7 @@ public class EnnemyAI : MonoBehaviour
         ennemyGFX = Instantiate(editableEnnemy.VFX, transform.position, Quaternion.identity);
         ennemyGFX.transform.parent = pivot.transform;
         ennemyGFX.transform.localPosition = editableEnnemy.pivotPoint;
+        sprite = ennemyGFX.GetComponent<SpriteRenderer>();
         attackPosition = ennemyGFX.transform.GetChild(0);
         animator = ennemyGFX.GetComponent<Animator>();
 
@@ -77,6 +80,12 @@ public class EnnemyAI : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = editableEnnemy.GravityScale;
         currentState = State.IDLE;
+
+        if(target == null)
+        {
+            target = GameObject.FindGameObjectWithTag("Player").transform;
+        }
+
         InvokeRepeating("UpdatePath", 0f, .5f);
     }
 
@@ -120,6 +129,37 @@ public class EnnemyAI : MonoBehaviour
         return false;
     }
 
+    private bool isInvincible = false;
+    private bool IsRed = false;
+
+    public void TakeDamage(int damage, bool fromRight)
+    {
+        if (isInvincible) return;
+        if(editableEnnemy.TakeDamage(damage))
+        {
+            EnterDeadState();
+            currentState = State.DEAD;
+        } 
+        else
+        {
+            InvokeRepeating(nameof(BlinkRed), 0, 0.2f);
+            Invoke(nameof(EndInvincibleFrame), editableEnnemy.InvincibleTime);
+        }
+    }
+
+    public void BlinkRed()
+    {
+        IsRed = !IsRed;
+        sprite.color = IsRed ? Color.red : Color.white;
+    }
+
+    private void EndInvincibleFrame()
+    {
+        CancelInvoke(nameof(BlinkRed));
+        isInvincible = false;
+        if (IsRed) BlinkRed();
+    }
+
     void EnterRunState()
     {
         animator.SetBool("IsShooting", false);
@@ -153,7 +193,7 @@ public class EnnemyAI : MonoBehaviour
                     attackGO.transform.parent = attackPosition;
                     if (target.position.x < transform.position.x)
                         attackGO.transform.localScale = new Vector3(-attackGO.transform.localScale.x, attackGO.transform.localScale.y, attackGO.transform.localScale.z);
-                    
+
                     attackGO.StartAttack();
                 }
                 break;
@@ -195,7 +235,9 @@ public class EnnemyAI : MonoBehaviour
 
     void EnterDeadState()
     {
+        if (attackGO != null) ExitShootState();
         animator.SetBool("IsShooting", false);
+        rb.gravityScale = 2;
         animator.SetBool("IsDead", true);
     }
 
@@ -206,11 +248,15 @@ public class EnnemyAI : MonoBehaviour
 
     State ChangeState()
     {
-        //if (ennemy.isDead())
-        //{
-        //    EnterDeadState()
-        //    newState = State.Dead;
-        //}
+        if (currentState == State.DEAD)
+            return State.DEAD;
+
+        if(ennemy.IsDead)
+        {
+            EnterDeadState();
+            return State.DEAD;
+        }
+
         if (attackGO != null && !attackGO.HasFinished) return State.SHOOT;
 
         if (IsTargetInShootingRange() && currentState == State.SHOOT) return State.SHOOT;
@@ -254,7 +300,7 @@ public class EnnemyAI : MonoBehaviour
         reachedEndOfPath = false;
 
         Vector2 direction = ((Vector2)path.vectorPath[currentWaypoint] - rb.position).normalized;
-        Vector2 force = direction * editableEnnemy.Speed * Time.deltaTime;
+        Vector2 force = direction * editableEnnemy.MoveSpeed * Time.deltaTime;
         animator.SetFloat("Speed", force.magnitude);
 
         rb.AddForce(force);

@@ -12,10 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4d49ad6e5e39c7428c227a18d7b70c7, type: 3}
   m_Name: FirearmDrone
   m_EditorClassIdentifier: 
+  MaxHealth: 10
+  Health: 10
+  MoveSpeed: 800
+  JumpForce: 0
+  InvincibleTime: 0.1
+  IsDead: 0
   pivotPoint: {x: -1, y: 0.5}
   AggroRadius: 40
   ShootRadius: 20
-  Speed: 400
-  CanLooseAggro: 1
+  GravityScale: 0
+  CanLooseAggro: 0
+  CanMove: 1
+  CanRotate: 1
   AttackPattern: 0
   VFX: {fileID: 2101371295612153336, guid: a799b59aa39f4464a868fa6ba5ba8126, type: 3}

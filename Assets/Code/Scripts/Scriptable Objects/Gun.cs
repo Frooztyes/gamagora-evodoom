@@ -9,7 +9,7 @@ public class Gun : ScriptableObject
     public int MaxMagazineCapacity = 3;
     public int MagazineCapacity = 3;
 
-    public float RotationReloadSpeed = 2f;
+    public float RotationSpeed = 20f;
 
     public float RecoilStrength = 0f;
 

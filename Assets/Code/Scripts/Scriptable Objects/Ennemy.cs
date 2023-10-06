@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/Ennemy", order = 1)]
-public class Ennemy : ScriptableObject
+public class Ennemy : LivingCreature
 {
     public enum AttackType
     {
@@ -19,7 +19,6 @@ public class Ennemy : ScriptableObject
     public float AggroRadius = 0;
     public float ShootRadius = 0;
 
-    public float Speed = 0;
     public float GravityScale = 0;
 
     public bool CanLooseAggro = false;

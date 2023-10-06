@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxMagazineCapacity: 3
   MagazineCapacity: 3
-  RotationReloadSpeed: 1
+  RotationSpeed: 10
   RecoilStrength: 0.1
   Damage: 10
   projectile: {fileID: 1563950132161701042, guid: 75eb89fb5e69cc84688f6c56f3aeda1c, type: 3}
