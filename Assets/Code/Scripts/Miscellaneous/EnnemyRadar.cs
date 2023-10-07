@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class EnnemyRadar : MonoBehaviour
 {
@@ -10,30 +12,45 @@ public class EnnemyRadar : MonoBehaviour
         public RectTransform ennemyUI;
     }
 
-    [SerializeField] private float radarDistance;
-    List<EnnemyPos> ennemies;
+    [SerializeField] private float radarDistance = 200f;
     Transform player;
-    [SerializeField] private GameObject ennemy;
+    [SerializeField] private GameObject radarPing;
+    [SerializeField] private RectTransform lineTrail;
+    [SerializeField] private float lineSpeed = 10f;
 
     RectTransform rectTransform;
-    float width;
-    float height;
+    List<Collider2D> colliderList;
+
+    Vector2 NewMax;
+    Vector2 NewMin;
     // Start is called before the first frame update
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
 
         rectTransform = GetComponent<RectTransform>();
-        width = rectTransform.rect.width;
-        height = rectTransform.rect.height;
-        ennemies = new List<EnnemyPos>();
-        foreach (GameObject go in GameObject.FindGameObjectsWithTag("Ennemy"))
-        {
-            RectTransform t = Instantiate(ennemy, Vector3.zero, Quaternion.identity).GetComponent<RectTransform>();
-            t.transform.parent = transform;
-            t.gameObject.SetActive(false);
-            ennemies.Add(new EnnemyPos() { ennemyIG = go, ennemyUI = t});
-        } 
+        //ennemies = new List<EnnemyPos>();
+        //foreach (GameObject go in GameObject.FindGameObjectsWithTag("Ennemy"))
+        //{
+        //    RectTransform t = Instantiate(ennemy, Vector3.zero, Quaternion.identity).GetComponent<RectTransform>();
+        //    t.transform.parent = transform;
+        //    t.gameObject.SetActive(false);
+        //    ennemies.Add(new EnnemyPos() { ennemyIG = go, ennemyUI = t});
+        //}
+
+        NewMax = new Vector2(rectTransform.rect.width / 2, rectTransform.rect.height / 2);
+        NewMin = -NewMax;
+
+        colliderList = new List<Collider2D>();
+
+    }
+
+
+    private void OnDrawGizmos()
+    {
+        if(player == null) player = GameObject.FindGameObjectWithTag("Player").transform;
+        Handles.color = Color.green;
+        Handles.DrawWireDisc(player.position, transform.forward, radarDistance);
     }
 
     // Update is called once per frame
@@ -41,39 +58,50 @@ public class EnnemyRadar : MonoBehaviour
     {
         Vector2 OldMax = new Vector2(player.position.x + radarDistance, player.position.y + radarDistance);
         Vector2 OldMin = new Vector2(player.position.x - radarDistance, player.position.y - radarDistance);
-
-        Vector2 NewMax = new Vector2(width/2, height/2);
-        Vector2 NewMin = -NewMax;
-
         Vector2 OldRange = OldMax - OldMin;
         Vector2 NewRange = NewMax - NewMin;
 
-        foreach (EnnemyPos ennemy in ennemies)
+
+        float previousRotation = (lineTrail.eulerAngles.z % 360) - 180;
+        lineTrail.Rotate(lineSpeed * Time.deltaTime * -Vector3.forward);
+        float currentRotation = (lineTrail.eulerAngles.z % 360) - 180;
+
+        if(previousRotation < 0 && currentRotation >=0)
         {
-            if (!ennemy.ennemyUI.gameObject.activeSelf) ennemy.ennemyUI.gameObject.SetActive(true);
-
-
-            float x = ennemy.ennemyIG.transform.position.x;
-            x = Mathf.Clamp(x, player.position.x - radarDistance, player.position.x + radarDistance);
-
-
-            float y = ennemy.ennemyIG.transform.position.y;
-            y = Mathf.Clamp(y, player.position.y - radarDistance, player.position.y + radarDistance);
-
-            Vector2 OldValue = new Vector2(x, y);
-
-            Vector2 NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin;
-            ennemy.ennemyUI.anchoredPosition = NewValue;
-            //
-            //
-
-            //float percentX = xSize / x;
-            //Debug.Log(percentX);
-            //float percentY = ySize / y;
-
-            //Vector2 newPos = new Vector2((percentX * width) - width/2, (percentY * height) - height/2);
-            //Debug.Log(newPos);
-            //
+            colliderList.Clear();
         }
+
+        float angleRad = lineTrail.eulerAngles.z * (Mathf.PI / 180f);
+        Vector3 angleVector = new Vector3(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
+
+        RaycastHit2D[] raycastsHit2D = Physics2D.RaycastAll(player.position, angleVector, Mathf.Infinity, 1 << LayerMask.NameToLayer("Ennemy"));
+        foreach(RaycastHit2D raycastHit2D in raycastsHit2D)
+        {
+            if(raycastHit2D.collider == null) continue;
+            if (colliderList.Contains(raycastHit2D.collider)) continue;
+
+            colliderList.Add(raycastHit2D.collider);
+
+            RectTransform rect = Instantiate(radarPing, Vector3.zero, Quaternion.identity).GetComponent<RectTransform>();
+            rect.SetParent(gameObject.transform);
+            rect.anchoredPosition = GetScaledPosition(raycastHit2D.transform.position, NewRange, OldRange, OldMin);
+            rect.GetComponent<RadarPing>().SetDisappearTimer(360f / lineSpeed);
+        }
+    }
+
+    private Vector2 GetScaledPosition(Vector2 position, Vector2 NewRange, Vector2 OldRange, Vector2 OldMin)
+    {
+        float x = position.x;
+
+        float y = position.y;
+
+        Vector2 oldPos = new Vector2(x, y);
+        Vector2 v = oldPos - (Vector2)player.position;
+        if (v.magnitude > radarDistance)
+        {
+            oldPos = (Vector2)player.position + v.normalized * (radarDistance - 1);
+        }
+
+        return (((oldPos - OldMin) * NewRange) / OldRange) + NewMin;
     }
 }
