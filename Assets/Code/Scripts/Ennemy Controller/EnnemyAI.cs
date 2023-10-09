@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Pathfinding;
 using UnityEditor;
-using System;
 using Unity.VisualScripting;
 using UnityEngine.Rendering.PostProcessing;
 
 public class EnnemyAI : MonoBehaviour
 {
     #region Pattern
-    [Serializable]
+    [System.Serializable]
     private struct Pattern
     {
         public string name;
@@ -47,8 +46,9 @@ public class EnnemyAI : MonoBehaviour
 
     [Header("Misc")]
     [SerializeField] private float nextWaypointDistance = 3f;
+    [SerializeField] private GameObject explosionEffect;
 
-    private GameObject pivot;
+    private Transform pivot;
     private GameObject ennemyGFX;
     private AttackPattern attackGameObject;
     private Transform attackPosition;
@@ -67,18 +67,30 @@ public class EnnemyAI : MonoBehaviour
 
     private Rigidbody2D rb;
     private SpriteRenderer sprite;
+    private float defaultRotation;
 
     // Start is called before the first frame update
     void Start()
     {
+        Random.InitState(System.Environment.TickCount);
+
         editableEnnemy = Instantiate(ennemy);
 
-        pivot = transform.GetChild(0).gameObject;
+        pivot = transform.GetChild(0).gameObject.transform;
+        defaultRotation = transform.rotation.eulerAngles.y;
 
         ennemyGFX = Instantiate(editableEnnemy.VFX, transform.position, Quaternion.identity);
-        ennemyGFX.transform.parent = pivot.transform;
-        ennemyGFX.transform.localPosition = editableEnnemy.pivotPoint;
+        ennemyGFX.transform.parent = pivot;
 
+        if (defaultRotation == 0)
+        {
+            ennemyGFX.transform.localPosition = new Vector2(-editableEnnemy.pivotPoint.x, editableEnnemy.pivotPoint.y);
+        } 
+        else
+        {
+            ennemyGFX.transform.localPosition = editableEnnemy.pivotPoint;
+        }
+        
         sprite = ennemyGFX.GetComponent<SpriteRenderer>();
         attackPosition = ennemyGFX.transform.GetChild(0);
         animator = ennemyGFX.GetComponent<Animator>();
@@ -203,19 +215,11 @@ public class EnnemyAI : MonoBehaviour
 
         if (force.x >= 0.01f)
         {
-            ennemyGFX.transform.localScale = new Vector3(
-                Mathf.Abs(ennemyGFX.transform.localScale.x),
-                ennemyGFX.transform.localScale.y,
-                ennemyGFX.transform.localScale.z
-            );
+            ennemyGFX.transform.rotation = Quaternion.Euler(0, 0, 0);
         }
         else if (force.x <= -0.01f)
         {
-            ennemyGFX.transform.localScale = new Vector3(
-                -Mathf.Abs(ennemyGFX.transform.localScale.x),
-                ennemyGFX.transform.localScale.y,
-                ennemyGFX.transform.localScale.z
-            );
+            ennemyGFX.transform.rotation = Quaternion.Euler(0, 180, 0);
         }
     }
     #endregion
@@ -236,6 +240,7 @@ public class EnnemyAI : MonoBehaviour
     #region ShootState
     void ExitShootState()
     {
+        if(attackGameObject != null)
         Destroy(attackGameObject.gameObject);
     }
 
@@ -250,11 +255,8 @@ public class EnnemyAI : MonoBehaviour
                 if (go = FindPatternByName("VOLLEY"))
                 {
                     attackGameObject = Instantiate(go, attackPosition.position, Quaternion.identity).GetComponent<VolleyProjectile>();
-
+                    attackGameObject.transform.Rotate((defaultRotation != 0 ? 180 : 0) * Vector2.up);
                     attackGameObject.transform.parent = attackPosition;
-                    if (target.position.x < transform.position.x)
-                        attackGameObject.transform.localScale = new Vector3(-attackGameObject.transform.localScale.x, attackGameObject.transform.localScale.y, attackGameObject.transform.localScale.z);
-
                     attackGameObject.StartAttack();
                 }
                 break;
@@ -262,11 +264,8 @@ public class EnnemyAI : MonoBehaviour
                 if (go = FindPatternByName("LASER"))
                 {
                     attackGameObject = Instantiate(go, attackPosition.position, Quaternion.identity).GetComponent<Laser>();
-
+                    attackGameObject.transform.Rotate(transform.rotation.eulerAngles.y * Vector2.up);
                     attackGameObject.transform.parent = attackPosition;
-                    if (target.position.x > transform.position.x)
-                        attackGameObject.transform.localScale = new Vector3(-attackGameObject.transform.localScale.x, attackGameObject.transform.localScale.y, attackGameObject.transform.localScale.z);
-
                     attackGameObject.StartAttack();
                 }
                 break;
@@ -276,11 +275,10 @@ public class EnnemyAI : MonoBehaviour
                 break;
 
             case Ennemy.AttackType.ROCKET:
-                Debug.Log("rocket");
                 if (go = FindPatternByName("ROCKET"))
                 {
                     attackGameObject = Instantiate(go, attackPosition.position, go.transform.rotation).GetComponent<RocketPattern>();
-                    attackGameObject.transform.Rotate(Vector2.up * 180);
+                    attackGameObject.transform.Rotate(transform.rotation.eulerAngles.y * Vector2.up);
                     attackGameObject.transform.parent = attackPosition;
                     attackGameObject.StartAttack();
                 }
@@ -301,19 +299,11 @@ public class EnnemyAI : MonoBehaviour
         {
             if (!isBehind)
             {
-                ennemyGFX.transform.localScale = new Vector3(
-                    Mathf.Abs(ennemyGFX.transform.localScale.x),
-                    ennemyGFX.transform.localScale.y,
-                    ennemyGFX.transform.localScale.z
-                );
+                transform.rotation = Quaternion.Euler(0, Mathf.Abs(180 - defaultRotation), 0);
             }
             else if (isBehind)
             {
-                ennemyGFX.transform.localScale = new Vector3(
-                    -Mathf.Abs(ennemyGFX.transform.localScale.x),
-                    ennemyGFX.transform.localScale.y,
-                    ennemyGFX.transform.localScale.z
-                );
+                transform.rotation = Quaternion.Euler(0, defaultRotation, 0);
             }
         }
 
@@ -328,6 +318,14 @@ public class EnnemyAI : MonoBehaviour
             case Ennemy.AttackType.MELEE:
                 break;
             case Ennemy.AttackType.ROCKET:
+                if((attackGameObject as RocketPattern).IsReloading())
+                {
+                    animator.SetBool("IsShooting", false);
+                } 
+                else
+                {
+                    animator.SetBool("IsShooting", true);
+                }
                 break;
         }
     }
@@ -338,8 +336,38 @@ public class EnnemyAI : MonoBehaviour
     {
         if (attackGameObject != null) ExitShootState();
         animator.SetBool("IsShooting", false);
-        rb.gravityScale = 2;
+        rb.gravityScale = 20;
         animator.SetBool("IsDead", true);
+        InvokeRepeating(nameof(ExplosionDeath), 0f, 0.2f);
+        InvokeRepeating(nameof(RemoveGameObject), 1f, 0.5f);
+    }
+
+    private void ExplosionDeath()
+    {
+        Vector2 explosionPosition = Vector2.zero;
+
+        float[] rangeX = new float[] {
+            sprite.bounds.center.x - sprite.bounds.size.x/2,
+            sprite.bounds.center.x + sprite.bounds.size.x/2
+        };
+
+        float[] rangeY = new float[] {
+            sprite.bounds.center.y - sprite.bounds.size.y/2,
+            sprite.bounds.center.y + sprite.bounds.size.y/2
+        };
+
+
+        explosionPosition.x = Random.Range(rangeX[0], rangeX[1]);
+        explosionPosition.y = Random.Range(rangeY[0], rangeY[1]);
+
+        Instantiate(explosionEffect, explosionPosition, Quaternion.identity);
+    }
+
+    private void RemoveGameObject()
+    {
+        CancelInvoke(nameof(ExplosionDeath));
+        if(rb.velocity.y == 0)
+            Destroy(gameObject);
     }
     #endregion
 
@@ -418,5 +446,10 @@ public class EnnemyAI : MonoBehaviour
         {
             TickIdleState();
         }
+    }
+
+    public bool IsDead()
+    {
+        return editableEnnemy.IsDead;
     }
 }

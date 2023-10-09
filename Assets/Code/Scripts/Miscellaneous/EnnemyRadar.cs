@@ -61,12 +61,11 @@ public class EnnemyRadar : MonoBehaviour
         Vector2 OldRange = OldMax - OldMin;
         Vector2 NewRange = NewMax - NewMin;
 
-
         float previousRotation = (lineTrail.eulerAngles.z % 360) - 180;
         lineTrail.Rotate(lineSpeed * Time.deltaTime * -Vector3.forward);
         float currentRotation = (lineTrail.eulerAngles.z % 360) - 180;
 
-        if(previousRotation < 0 && currentRotation >=0)
+        if(previousRotation < 0 && currentRotation >= 0)
         {
             colliderList.Clear();
         }

@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4d49ad6e5e39c7428c227a18d7b70c7, type: 3}
   m_Name: RocketLauncher
   m_EditorClassIdentifier: 
-  MaxHealth: 100
-  Health: 100
+  MaxHealth: 10
+  Health: 10
   MoveSpeed: 0
   JumpForce: 0
   InvincibleTime: 0.1
   IsDead: 0
   pivotPoint: {x: 0, y: 0}
   AggroRadius: 0
-  ShootRadius: 20
+  ShootRadius: 40
   GravityScale: 50
   CanLooseAggro: 1
   CanMove: 0

@@ -4967,8 +4967,8 @@ LineRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -827642967
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
@@ -5056,7 +5056,7 @@ MonoBehaviour:
   cooldown: 5
   startingAngle: -70
   endingAndle: 70
-  acceleration: 0.00015
+  damage: 10
 --- !u!82 &6211856340975398589
 AudioSource:
   m_ObjectHideFlags: 0

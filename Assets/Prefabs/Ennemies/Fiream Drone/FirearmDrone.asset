@@ -18,7 +18,7 @@ MonoBehaviour:
   JumpForce: 0
   InvincibleTime: 0.1
   IsDead: 0
-  pivotPoint: {x: -1, y: 0.5}
+  pivotPoint: {x: -0.9, y: 0.5}
   AggroRadius: 40
   ShootRadius: 20
   GravityScale: 0

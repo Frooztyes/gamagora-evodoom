@@ -12,12 +12,18 @@ public class Projectile : MonoBehaviour
 
     private bool initialized = false;
     private int parentLayer = -1;
-    
+
+    private void Start()
+    {
+        Destroy(gameObject, 10f);
+    }
+
     void Update()
     {
         if (!initialized) return;
         velocity += accelerationPerTick;
         transform.Translate(Time.deltaTime * velocity * Vector2.right);
+        
     }
 
     public void SetStatistics(Vector2 dir, int damage, int parentLayer)
@@ -39,7 +45,6 @@ public class Projectile : MonoBehaviour
         }
         if (layer == LayerMask.NameToLayer("Ennemy") && parentLayer != collision.gameObject.layer)
         {
-            Debug.Log(collision.gameObject.name);
             collision.gameObject.GetComponentInParent<EnnemyAI>().TakeDamage(damage, false);
             Destroy(gameObject);
         }

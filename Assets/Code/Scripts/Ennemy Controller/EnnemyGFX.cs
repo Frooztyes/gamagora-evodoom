@@ -16,14 +16,14 @@ public class EnnemyGFX : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (aiPath.desiredVelocity.x >= 0.01f)
-        {
-            transform.localScale = new Vector3(-1f, 1f, 1f);
-        }
-        else if (aiPath.desiredVelocity.x <= -0.01f)
-        {
+        //if (aiPath.desiredVelocity.x >= 0.01f)
+        //{
+        //    transform.rotation = Quaternion.Euler(0, 180, 0);
+        //}
+        //else if (aiPath.desiredVelocity.x <= -0.01f)
+        //{
 
-            transform.localScale = new Vector3(1f, 1f, 1f);
-        }
+        //    transform.rotation = Quaternion.Euler(0, 0, 0);
+        //}
     }
 }

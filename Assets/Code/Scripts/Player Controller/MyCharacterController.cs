@@ -62,6 +62,11 @@ public class MyCharacterController : MonoBehaviour
         characterAudioSource = GetComponent<AudioSource>();
     }
 
+    private void OnDrawGizmosSelected()
+    {
+        Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
+    }
+
     public bool IsGrounded()
     {
         return isGrounded;

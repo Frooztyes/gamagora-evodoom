@@ -46,19 +46,23 @@ public class HomingMissile : MonoBehaviour
         if (layer == "Player")
         {
             collision.gameObject.GetComponent<MyCharacterController>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
+            Instantiate(explosionEffect, transform.position, transform.rotation);
             Destroy(gameObject);
         }
         if (layer == "Ground")
         {
-            var hitColliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius, 1 << LayerMask.NameToLayer("Player"));
+            var hitColliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius, 1 << LayerMask.NameToLayer("Player") | 1 << LayerMask.NameToLayer("Ennemy"));
             foreach(Collider2D i in hitColliders)
             {
                 layer = LayerMask.LayerToName(i.gameObject.layer);
-                i.gameObject.GetComponent<MyCharacterController>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
+                if(i.gameObject.GetComponent<MyCharacterController>())
+                    i.gameObject.GetComponent<MyCharacterController>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
+                if (i.gameObject.GetComponent<EnnemyAI>())
+                    i.gameObject.GetComponent<EnnemyAI>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
             }
+            Instantiate(explosionEffect, transform.position, transform.rotation);
             Destroy(gameObject);
         }
-        //Instantiate(explosionEffect, transform.position, transform.rotation);
     }
 
 }
