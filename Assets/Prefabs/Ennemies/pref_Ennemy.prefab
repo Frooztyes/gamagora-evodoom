@@ -121,6 +121,7 @@ MonoBehaviour:
     attackPattern: {fileID: 8816414793551930769, guid: 3728f1deab99e78449b4cc0e2b4875f3, type: 3}
   nextWaypointDistance: 3
   explosionEffect: {fileID: 5069241846091145601, guid: 2d9ec5a485f5dc6439b1533ffa9755bb, type: 3}
+  FacingRight: 1
 --- !u!50 &6430770745821611393
 Rigidbody2D:
   serializedVersion: 4

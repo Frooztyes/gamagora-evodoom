@@ -49,7 +49,7 @@ public class EnnemyRadar : MonoBehaviour
     private void OnDrawGizmos()
     {
         if(player == null) player = GameObject.FindGameObjectWithTag("Player").transform;
-        Handles.color = Color.green;
+        Handles.color = Color.blue;
         Handles.DrawWireDisc(player.position, transform.forward, radarDistance);
     }
 

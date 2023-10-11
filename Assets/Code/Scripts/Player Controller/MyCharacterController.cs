@@ -42,13 +42,17 @@ public class MyCharacterController : MonoBehaviour
     private AudioSource[] gunSounds;
     private SpriteRenderer sprite;
 
+    // variable de framing invincible
+    private bool isInvincible;
+    private bool isStunned = false;
+
     void Start()
     {
         sprite = GetComponent<SpriteRenderer>();
         editableChar = Instantiate(character);
         editableGun = Instantiate(gun);
         gunGFX = Instantiate(editableGun.GFX, gunPosition.position, Quaternion.identity).transform;
-        gunGFX.transform.parent = transform;
+        gunGFX.transform.parent = gunPosition;
         gunGFX.localScale = Vector3.one * editableGun.Scale;
         gunAnimation = gunGFX.GetComponent<Animation>();
         gunSounds = gunGFX.GetComponents<AudioSource>();
@@ -137,13 +141,14 @@ public class MyCharacterController : MonoBehaviour
             rb.AddForce((defaultFacing ? Vector3.left : Vector3.right) * editableGun.RecoilStrength);
             ShootProjectile();
         }
+
+        if((!isGrounded || isFlying) && !shooting)
+        {
+            //gunGFX.position = gunPosition.position;
+        }
     }
 
-    // variable de framing invincible
-    private bool isInvincible;
-    private bool isStunned = false;
-
-    public void TakeDamage(int damage, bool fromRight)
+    public void TakeDamage(int damage, bool fromRight, float multiplier = 1f)
     {
         if (isInvincible) return;
         editableChar.TakeDamage(damage);
@@ -160,7 +165,7 @@ public class MyCharacterController : MonoBehaviour
         {
             rb.AddForce(Vector2.up * 500);
         }
-        rb.AddForce((fromRight ? Vector3.left : Vector3.right) * 200);
+        rb.AddForce((fromRight ? Vector3.left : Vector3.right) * 200 * multiplier);
 
         InvokeRepeating(nameof(BlinkRed), 0, 0.2f);
         Invoke(nameof(EndInvincibleFrame), editableChar.InvincibleTime);
@@ -195,7 +200,7 @@ public class MyCharacterController : MonoBehaviour
     {
         if (editableGun.MagazineCapacity <= 0) return;
 
-        Projectile p = Instantiate(editableGun.projectile, gunPosition.position, Quaternion.identity).GetComponent<Projectile>();
+        Projectile p = Instantiate(editableGun.projectile, gunGFX.position, Quaternion.identity).GetComponent<Projectile>();
         foreach (AudioSource gunSound in gunSounds)
         {
             gunSound.Play();
@@ -213,7 +218,19 @@ public class MyCharacterController : MonoBehaviour
         {
             gunAnimation.Play();
         }
+        gunGFX.GetComponent<FloatingAnimation>().Recoil(dir.x < 0);
     }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        int layer = collision.gameObject.layer;
+        if (layer == LayerMask.NameToLayer("Ennemy"))
+        {
+            int damage = collision.gameObject.GetComponent<EnnemyAI>().GetContactDamage();
+            TakeDamage(damage, collision.transform.position.x > transform.position.x, 2f);
+        }
+    }
+
 
     void FlipCharacter() 
     {

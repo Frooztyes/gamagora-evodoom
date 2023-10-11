@@ -14,16 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxHealth: 10
   Health: 10
-  MoveSpeed: 20
+  MoveSpeed: 400
   JumpForce: 80
   InvincibleTime: 0.5
   IsDead: 0
-  pivotPoint: {x: 0, y: 0}
+  pivotPoint: {x: 0, y: -1}
   AggroRadius: 40
-  ShootRadius: 10
+  ShootRadius: 20
   GravityScale: 5
   CanLooseAggro: 0
   CanMove: 1
   CanRotate: 1
+  ContactDamage: 10
   AttackPattern: 3
   VFX: {fileID: 6940302352937441953, guid: 12eed506af556434a95249ee536dfd47, type: 3}

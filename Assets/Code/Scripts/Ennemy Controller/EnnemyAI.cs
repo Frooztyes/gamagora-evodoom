@@ -47,6 +47,7 @@ public class EnnemyAI : MonoBehaviour
     [Header("Misc")]
     [SerializeField] private float nextWaypointDistance = 3f;
     [SerializeField] private GameObject explosionEffect;
+    [SerializeField] private bool FacingRight = true;
 
     private Transform pivot;
     private GameObject ennemyGFX;
@@ -77,28 +78,25 @@ public class EnnemyAI : MonoBehaviour
         editableEnnemy = Instantiate(ennemy);
 
         pivot = transform.GetChild(0).gameObject.transform;
-        defaultRotation = transform.rotation.eulerAngles.y;
 
         ennemyGFX = Instantiate(editableEnnemy.VFX, transform.position, Quaternion.identity);
         ennemyGFX.transform.parent = pivot;
 
-        if (defaultRotation == 0)
+        if(!FacingRight)
         {
-            ennemyGFX.transform.localPosition = new Vector2(-editableEnnemy.pivotPoint.x, editableEnnemy.pivotPoint.y);
+            transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
         } 
         else
         {
-            ennemyGFX.transform.localPosition = editableEnnemy.pivotPoint;
+            transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
         }
+
+        CenterSprite();
+        
         
         sprite = ennemyGFX.GetComponent<SpriteRenderer>();
         attackPosition = ennemyGFX.transform.GetChild(0);
         animator = ennemyGFX.GetComponent<Animator>();
-
-        BoxCollider2D gfxCollider = ennemyGFX.GetComponent<BoxCollider2D>();
-        BoxCollider2D collider = this.AddComponent<BoxCollider2D>();
-        collider.size = gfxCollider.size;
-        collider.offset = gfxCollider.offset;
 
         seeker = GetComponent<Seeker>();
         rb = GetComponent<Rigidbody2D>();
@@ -112,6 +110,16 @@ public class EnnemyAI : MonoBehaviour
 
         // Update A* path every .5 seconds
         InvokeRepeating(nameof(UpdatePath), 0f, .5f);
+    }
+
+    private void CenterSprite()
+    {
+        SpriteRenderer sprite = ennemyGFX.GetComponent<SpriteRenderer>();
+        Debug.Log(sprite.bounds);
+        ennemyGFX.transform.localPosition = new Vector3(
+            (sprite.bounds.size.x / 2) * editableEnnemy.pivotPoint.x, 
+            (sprite.bounds.size.y / 2) * editableEnnemy.pivotPoint.y, 0
+        );
     }
 
     #region Editor
@@ -146,6 +154,7 @@ public class EnnemyAI : MonoBehaviour
     #region StateMachine
     State ChangeState()
     {
+        animator.SetBool("Reset", false);
         if (currentState == State.DEAD)
             return State.DEAD;
 
@@ -206,6 +215,10 @@ public class EnnemyAI : MonoBehaviour
         Vector2 force = direction * editableEnnemy.MoveSpeed * Time.deltaTime;
         animator.SetFloat("Speed", force.magnitude);
 
+        if(rb.gravityScale > 0)
+        {
+            force *= rb.gravityScale;
+        }
         rb.AddForce(force);
 
         float distance = Vector2.Distance(rb.position, path.vectorPath[currentWaypoint]);
@@ -213,14 +226,8 @@ public class EnnemyAI : MonoBehaviour
         if (distance < nextWaypointDistance)
             currentWaypoint++;
 
-        if (force.x >= 0.01f)
-        {
-            ennemyGFX.transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
-        else if (force.x <= -0.01f)
-        {
-            ennemyGFX.transform.rotation = Quaternion.Euler(0, 180, 0);
-        }
+        if(editableEnnemy.CanRotate)
+            transform.localRotation = Quaternion.Euler(0, target.position.x < transform.position.x ? 180 : 0, 0);
     }
     #endregion
 
@@ -241,12 +248,17 @@ public class EnnemyAI : MonoBehaviour
     void ExitShootState()
     {
         if(attackGameObject != null)
-        Destroy(attackGameObject.gameObject);
+            Destroy(attackGameObject.gameObject);
+        if (editableEnnemy.AttackPattern == Ennemy.AttackType.MELEE)
+        {
+            animator.SetBool("Reset", true);
+            Destroy(ennemyGFX.GetComponent<DistanceToForce>());
+        }
     }
 
     void EnterShootState()
     {
-        GameObject go = null;
+        GameObject go;
         switch (editableEnnemy.AttackPattern)
         {
             case Ennemy.AttackType.VOLLEY:
@@ -255,32 +267,31 @@ public class EnnemyAI : MonoBehaviour
                 if (go = FindPatternByName("VOLLEY"))
                 {
                     attackGameObject = Instantiate(go, attackPosition.position, Quaternion.identity).GetComponent<VolleyProjectile>();
-                    attackGameObject.transform.Rotate((defaultRotation != 0 ? 180 : 0) * Vector2.up);
-                    attackGameObject.transform.parent = attackPosition;
-                    attackGameObject.StartAttack();
                 }
                 break;
             case Ennemy.AttackType.LASER:
                 if (go = FindPatternByName("LASER"))
                 {
                     attackGameObject = Instantiate(go, attackPosition.position, Quaternion.identity).GetComponent<Laser>();
-                    attackGameObject.transform.Rotate(transform.rotation.eulerAngles.y * Vector2.up);
-                    attackGameObject.transform.parent = attackPosition;
-                    attackGameObject.StartAttack();
                 }
                 break;
             case Ennemy.AttackType.SHOOT:
                 break;
             case Ennemy.AttackType.MELEE:
+                if(!ennemyGFX.GetComponent<DistanceToForce>())
+                {
+                    DistanceToForce script = ennemyGFX.AddComponent<DistanceToForce>();
+                    script.SetInformations(target, animator, rb);
+                    script.StartAttack();
+                    animator.SetFloat("Speed", 0f);
+                }
                 break;
 
             case Ennemy.AttackType.ROCKET:
                 if (go = FindPatternByName("ROCKET"))
                 {
                     attackGameObject = Instantiate(go, attackPosition.position, go.transform.rotation).GetComponent<RocketPattern>();
-                    attackGameObject.transform.Rotate(transform.rotation.eulerAngles.y * Vector2.up);
-                    attackGameObject.transform.parent = attackPosition;
-                    attackGameObject.StartAttack();
+                    //attackGameObject.transform.Rotate(transform.rotation.eulerAngles.y * Vector2.up);
                 }
                 break;
 
@@ -289,23 +300,19 @@ public class EnnemyAI : MonoBehaviour
             default:
                 break;
         }
+        if(attackGameObject)
+        {
+            attackGameObject.transform.parent = attackPosition;
+            attackGameObject.transform.localRotation = Quaternion.identity;
+            attackGameObject.StartAttack();
+        }
         animator.SetBool("IsShooting", true);
     }
 
     void TickShootState()
     {
-        bool isBehind = target.position.x < transform.position.x;
         if (editableEnnemy.CanRotate)
-        {
-            if (!isBehind)
-            {
-                transform.rotation = Quaternion.Euler(0, Mathf.Abs(180 - defaultRotation), 0);
-            }
-            else if (isBehind)
-            {
-                transform.rotation = Quaternion.Euler(0, defaultRotation, 0);
-            }
-        }
+            transform.localRotation = Quaternion.Euler(0, target.position.x < transform.position.x ? 180 : 0, 0);
 
         switch (editableEnnemy.AttackPattern)
         {
@@ -316,6 +323,12 @@ public class EnnemyAI : MonoBehaviour
             case Ennemy.AttackType.SHOOT:
                 break;
             case Ennemy.AttackType.MELEE:
+                animator.SetFloat("Speed", 0f);
+                DistanceToForce d = ennemyGFX.GetComponent<DistanceToForce>();
+                if (d && d.HasFinished && rb.velocity == Vector2.zero && !d.IsReloading())
+                {
+                    d.StartAttack();
+                }
                 break;
             case Ennemy.AttackType.ROCKET:
                 if((attackGameObject as RocketPattern).IsReloading())
@@ -423,7 +436,6 @@ public class EnnemyAI : MonoBehaviour
     void FixedUpdate()
     {
         currentState = ChangeState();
-
         if (currentState == State.DEAD)
         {
             // handle death
@@ -446,6 +458,19 @@ public class EnnemyAI : MonoBehaviour
         {
             TickIdleState();
         }
+    }
+
+    public int GetContactDamage()
+    {
+        if(currentState == State.SHOOT && editableEnnemy.AttackPattern == Ennemy.AttackType.MELEE)
+        {
+            DistanceToForce d = ennemyGFX.GetComponent<DistanceToForce>();
+            if (d && !d.HasFinished)
+            {
+                return editableEnnemy.ContactDamage * 2;
+            }
+        } 
+        return editableEnnemy.ContactDamage;
     }
 
     public bool IsDead()

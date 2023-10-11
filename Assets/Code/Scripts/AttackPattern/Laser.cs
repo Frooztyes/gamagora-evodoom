@@ -30,20 +30,17 @@ public class Laser : AttackPattern
         defaultWidth = m_lineRenderer.startWidth;
         // deactivate in editor because of gizmos issue
         m_lineRenderer.useWorldSpace = true;
-        endVFX.SetActive(false); 
-        
-        transform.rotation = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, startingAngle);
+        endVFX.SetActive(false);
+
+        transform.localRotation = Quaternion.Euler(0f, 0f, 360 + startingAngle);
 
         m_lineRenderer.startWidth = defaultWidth;
-
-
     }
 
     float resetTime = 1f;
     float time = 0f;
     float width;
     float defaultWidth;
-
 
     void RotateLaser()
     {
@@ -55,20 +52,18 @@ public class Laser : AttackPattern
             return;
         }
 
-        float localRotation;
-        if (transform.lossyScale.x > 0)
-        {
-            // faire un truc diff
-            //localRotation = transform.rotation.eulerAngles.z < 0 ? transform.rotation.eulerAngles.z + 180 : transform.rotation.eulerAngles.z;
-            localRotation = transform.rotation.eulerAngles.z > 180 ? (360.0f - transform.rotation.eulerAngles.z) * -1 : transform.rotation.eulerAngles.z;
 
-        }
+        float angle;
+        if(transform.localRotation.eulerAngles.z > 180)
+        {
+            angle = -360 - transform.localRotation.eulerAngles.z;
+        } 
         else
         {
-            localRotation = transform.rotation.eulerAngles.z > 180 ? (360.0f - transform.rotation.eulerAngles.z) * -1 : transform.rotation.eulerAngles.z;
+            angle = transform.localRotation.eulerAngles.z;
         }
 
-        if (localRotation >= endingAndle)
+        if (angle >= endingAndle)
         {
             inReset = true;
             width = m_lineRenderer.startWidth;
@@ -144,8 +139,15 @@ public class Laser : AttackPattern
         } 
         else
         {
-            Draw2DRay(laserFirePoint.position, laserFirePoint.transform.right * defDistanceRay);
+            Draw2DRay(laserFirePoint.position, transform.right * defDistanceRay + transform.position);
+            RaycastHit2D _hit = Physics2D.Raycast(laserFirePoint.position, transform.right, defDistanceRay, mask);
+            if (LayerMask.LayerToName(_hit.collider.gameObject.layer) == "Player")
+            {
+                MyCharacterController player = _hit.collider.gameObject.GetComponent<MyCharacterController>();
+                player.TakeDamage(damage, player.transform.position.x < transform.position.x);
+            }
         }
+        Debug.DrawRay(laserFirePoint.position, transform.right * defDistanceRay, Color.green);
     }
 
     void Draw2DRay(Vector2 startPos, Vector2 endPos)

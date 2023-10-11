@@ -25,6 +25,8 @@ public class Ennemy : LivingCreature
     public bool CanMove = true;
     public bool CanRotate = true;
 
+    public int ContactDamage = 10;
+
     public AttackType AttackPattern;
 
     public GameObject VFX;
