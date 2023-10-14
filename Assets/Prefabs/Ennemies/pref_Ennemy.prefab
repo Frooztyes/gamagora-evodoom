@@ -122,6 +122,7 @@ MonoBehaviour:
   nextWaypointDistance: 3
   explosionEffect: {fileID: 5069241846091145601, guid: 2d9ec5a485f5dc6439b1533ffa9755bb, type: 3}
   FacingRight: 1
+  coin: {fileID: 1886236784484516385, guid: 2418b335ae9c1b647aa43120aeca4593, type: 3}
 --- !u!50 &6430770745821611393
 Rigidbody2D:
   serializedVersion: 4

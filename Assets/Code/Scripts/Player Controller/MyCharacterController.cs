@@ -22,8 +22,11 @@ public class MyCharacterController : MonoBehaviour
 
     [Header("Sounds")]
     [SerializeField] private List<AudioClip> walkingSounds;
+    [SerializeField] private AudioSource otherSoundsEffect;
+    [SerializeField] private AudioClip coinSound;
 
     [SerializeField] private Animator animator;
+    [SerializeField] private Transform flashLight;
 
     private Character editableChar;
     private Gun editableGun;
@@ -38,13 +41,14 @@ public class MyCharacterController : MonoBehaviour
     private Animation gunAnimation;
 
     private Image levitationIndicator;
-    private Image healthIndicator;
     private AudioSource[] gunSounds;
     private SpriteRenderer sprite;
 
     // variable de framing invincible
     private bool isInvincible;
     private bool isStunned = false;
+
+    private HealthBars healthBars;
 
     void Start()
     {
@@ -61,8 +65,11 @@ public class MyCharacterController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         isGrounded = false;
         levitationIndicator = GameObject.FindGameObjectWithTag("LevitationBar").GetComponent<Image>();
-        healthIndicator = GameObject.FindGameObjectWithTag("HealthBar").GetComponent<Image>();
-        healthIndicator.fillAmount = editableChar.GetHealthAmount();
+        healthBars = GameObject.FindGameObjectWithTag("HealthBar").GetComponent<HealthBars>();
+        healthBars.SetHealth(editableChar.Health);
+        healthBars.AddSheild();
+
+
         characterAudioSource = GetComponent<AudioSource>();
     }
 
@@ -104,6 +111,16 @@ public class MyCharacterController : MonoBehaviour
         {
             isStunned = false;
         }
+
+        Vector2 positionOnScreen = Camera.main.WorldToViewportPoint(transform.position);
+
+        //Get the Screen position of the mouse
+        Vector2 mouseOnScreen = (Vector2)Camera.main.ScreenToViewportPoint(Input.mousePosition);
+
+        //Get the angle between the points
+        float angle = AngleBetweenTwoPoints(positionOnScreen, mouseOnScreen);
+
+        flashLight.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle + 90f));
     }
     void PlayRandomWalkingSound()
     {
@@ -148,11 +165,11 @@ public class MyCharacterController : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damage, bool fromRight, float multiplier = 1f)
+    public void TakeDamage(bool fromRight, int damage = 1)
     {
         if (isInvincible) return;
         editableChar.TakeDamage(damage);
-        healthIndicator.fillAmount = editableChar.GetHealthAmount();
+        healthBars.RemoveOne();
         isInvincible = true;
 
         rb.velocity = Vector3.zero;
@@ -165,7 +182,7 @@ public class MyCharacterController : MonoBehaviour
         {
             rb.AddForce(Vector2.up * 500);
         }
-        rb.AddForce((fromRight ? Vector3.left : Vector3.right) * 200 * multiplier);
+        rb.AddForce((fromRight ? Vector3.left : Vector3.right) * 200);
 
         InvokeRepeating(nameof(BlinkRed), 0, 0.2f);
         Invoke(nameof(EndInvincibleFrame), editableChar.InvincibleTime);
@@ -194,6 +211,10 @@ public class MyCharacterController : MonoBehaviour
             transform.position - Camera.main.transform.position
         );
         return Camera.main.ScreenToWorldPoint(screenPosDepth);
+    }
+    float AngleBetweenTwoPoints(Vector3 a, Vector3 b)
+    {
+        return Mathf.Atan2(a.y - b.y, a.x - b.x) * Mathf.Rad2Deg;
     }
 
     private void ShootProjectile()
@@ -226,8 +247,21 @@ public class MyCharacterController : MonoBehaviour
         int layer = collision.gameObject.layer;
         if (layer == LayerMask.NameToLayer("Ennemy"))
         {
-            int damage = collision.gameObject.GetComponent<EnnemyAI>().GetContactDamage();
-            TakeDamage(damage, collision.transform.position.x > transform.position.x, 2f);
+            TakeDamage(collision.transform.position.x > transform.position.x);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        int layer = collision.gameObject.layer;
+        if (layer == LayerMask.NameToLayer("Collectible"))
+        {
+            if (collision.gameObject.tag == "Coin")
+            {
+                otherSoundsEffect.clip = coinSound;
+                otherSoundsEffect.Play();
+                Destroy(collision.gameObject);
+            }
         }
     }
 

@@ -45,7 +45,7 @@ public class HomingMissile : MonoBehaviour
         string layer = LayerMask.LayerToName(collision.gameObject.layer);
         if (layer == "Player")
         {
-            collision.gameObject.GetComponent<MyCharacterController>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
+            collision.gameObject.GetComponent<MyCharacterController>().TakeDamage(collision.transform.position.x < transform.position.x);
             Instantiate(explosionEffect, transform.position, transform.rotation);
             Destroy(gameObject);
         }
@@ -56,7 +56,7 @@ public class HomingMissile : MonoBehaviour
             {
                 layer = LayerMask.LayerToName(i.gameObject.layer);
                 if(i.gameObject.GetComponent<MyCharacterController>())
-                    i.gameObject.GetComponent<MyCharacterController>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
+                    i.gameObject.GetComponent<MyCharacterController>().TakeDamage(collision.transform.position.x < transform.position.x);
                 if (i.gameObject.GetComponent<EnnemyAI>())
                     i.gameObject.GetComponent<EnnemyAI>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
             }

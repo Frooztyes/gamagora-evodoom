@@ -1,10 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Pathfinding;
 using UnityEditor;
-using Unity.VisualScripting;
-using UnityEngine.Rendering.PostProcessing;
 
 public class EnnemyAI : MonoBehaviour
 {
@@ -48,6 +44,7 @@ public class EnnemyAI : MonoBehaviour
     [SerializeField] private float nextWaypointDistance = 3f;
     [SerializeField] private GameObject explosionEffect;
     [SerializeField] private bool FacingRight = true;
+    [SerializeField] private GameObject coin;
 
     private Transform pivot;
     private GameObject ennemyGFX;
@@ -115,7 +112,6 @@ public class EnnemyAI : MonoBehaviour
     private void CenterSprite()
     {
         SpriteRenderer sprite = ennemyGFX.GetComponent<SpriteRenderer>();
-        Debug.Log(sprite.bounds);
         ennemyGFX.transform.localPosition = new Vector3(
             (sprite.bounds.size.x / 2) * editableEnnemy.pivotPoint.x, 
             (sprite.bounds.size.y / 2) * editableEnnemy.pivotPoint.y, 0
@@ -252,7 +248,7 @@ public class EnnemyAI : MonoBehaviour
         if (editableEnnemy.AttackPattern == Ennemy.AttackType.MELEE)
         {
             animator.SetBool("Reset", true);
-            Destroy(ennemyGFX.GetComponent<DistanceToForce>());
+            Destroy(ennemyGFX.GetComponent<DashAttack>());
         }
     }
 
@@ -278,9 +274,9 @@ public class EnnemyAI : MonoBehaviour
             case Ennemy.AttackType.SHOOT:
                 break;
             case Ennemy.AttackType.MELEE:
-                if(!ennemyGFX.GetComponent<DistanceToForce>())
+                if(!ennemyGFX.GetComponent<DashAttack>())
                 {
-                    DistanceToForce script = ennemyGFX.AddComponent<DistanceToForce>();
+                    DashAttack script = ennemyGFX.AddComponent<DashAttack>();
                     script.SetInformations(target, animator, rb);
                     script.StartAttack();
                     animator.SetFloat("Speed", 0f);
@@ -324,7 +320,7 @@ public class EnnemyAI : MonoBehaviour
                 break;
             case Ennemy.AttackType.MELEE:
                 animator.SetFloat("Speed", 0f);
-                DistanceToForce d = ennemyGFX.GetComponent<DistanceToForce>();
+                DashAttack d = ennemyGFX.GetComponent<DashAttack>();
                 if (d && d.HasFinished && rb.velocity == Vector2.zero && !d.IsReloading())
                 {
                     d.StartAttack();
@@ -379,6 +375,16 @@ public class EnnemyAI : MonoBehaviour
     private void RemoveGameObject()
     {
         CancelInvoke(nameof(ExplosionDeath));
+        int maxCoins = Random.Range(editableEnnemy.MinCoinsOnDeath, editableEnnemy.MaxCoinsOnDeath + 1);
+        for (int i = 0; i < maxCoins; i++)
+        {
+            Rigidbody2D rb = Instantiate(coin, transform.position, Quaternion.identity).GetComponent<Rigidbody2D>();
+
+            Vector2 velocity = Vector2.up * Random.Range(200, 300) + Vector2.right * Random.Range(-200, 200);
+            rb.AddForce(velocity);
+
+        }
+
         if(rb.velocity.y == 0)
             Destroy(gameObject);
     }
@@ -464,7 +470,7 @@ public class EnnemyAI : MonoBehaviour
     {
         if(currentState == State.SHOOT && editableEnnemy.AttackPattern == Ennemy.AttackType.MELEE)
         {
-            DistanceToForce d = ennemyGFX.GetComponent<DistanceToForce>();
+            DashAttack d = ennemyGFX.GetComponent<DashAttack>();
             if (d && !d.HasFinished)
             {
                 return editableEnnemy.ContactDamage * 2;

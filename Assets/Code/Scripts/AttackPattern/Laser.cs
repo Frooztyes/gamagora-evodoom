@@ -23,6 +23,11 @@ public class Laser : AttackPattern
     private bool inReset = false;
     private bool laserStarted = false;
 
+    float resetTime = 1f;
+    float time = 0f;
+    float width;
+    float defaultWidth;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -35,12 +40,26 @@ public class Laser : AttackPattern
         transform.localRotation = Quaternion.Euler(0f, 0f, 360 + startingAngle);
 
         m_lineRenderer.startWidth = defaultWidth;
+        HasFinished = false;
+        laserStarted = true;
+        restartLaser = true;
+        laserSound.Play();
     }
 
-    float resetTime = 1f;
-    float time = 0f;
-    float width;
-    float defaultWidth;
+
+
+    public override void StartAttack()
+    {
+        HasFinished = false;
+        laserStarted = true;
+        restartLaser = true;
+        laserSound.Play();
+    }
+
+    public override void StopAttack()
+    {
+        restartLaser = false;
+    }
 
     void RotateLaser()
     {
@@ -78,20 +97,7 @@ public class Laser : AttackPattern
         ShootLaser();
     }
 
-    public override void StartAttack()
-    {
-        HasFinished = false;
-        laserStarted = true;
-        restartLaser = true;
-        laserSound.Play();
-    }
-
-    public override void StopAttack()
-    {
-        restartLaser = false;
-    }
-
-    private bool restartLaser = true;
+    private bool restartLaser = false;
 
 
     void Update()
@@ -134,17 +140,17 @@ public class Laser : AttackPattern
             if (LayerMask.LayerToName(_hit.collider.gameObject.layer) == "Player")
             {
                 MyCharacterController player = _hit.collider.gameObject.GetComponent<MyCharacterController>();
-                player.TakeDamage(damage, player.transform.position.x < transform.position.x);
+                player.TakeDamage(player.transform.position.x < transform.position.x);
             }
         } 
         else
         {
             Draw2DRay(laserFirePoint.position, transform.right * defDistanceRay + transform.position);
             RaycastHit2D _hit = Physics2D.Raycast(laserFirePoint.position, transform.right, defDistanceRay, mask);
-            if (LayerMask.LayerToName(_hit.collider.gameObject.layer) == "Player")
+            if (_hit && LayerMask.LayerToName(_hit.collider.gameObject.layer) == "Player")
             {
                 MyCharacterController player = _hit.collider.gameObject.GetComponent<MyCharacterController>();
-                player.TakeDamage(damage, player.transform.position.x < transform.position.x);
+                player.TakeDamage(player.transform.position.x < transform.position.x);
             }
         }
         Debug.DrawRay(laserFirePoint.position, transform.right * defDistanceRay, Color.green);

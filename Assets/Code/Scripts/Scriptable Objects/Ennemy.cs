@@ -18,6 +18,10 @@ public class Ennemy : LivingCreature
     public Vector2 pivotPoint = Vector2.zero;
     public float AggroRadius = 0;
     public float ShootRadius = 0;
+    public int ContactDamage = 10;
+
+    public int MinCoinsOnDeath = 2;
+    public int MaxCoinsOnDeath = 10;
 
     public float GravityScale = 0;
 
@@ -25,7 +29,6 @@ public class Ennemy : LivingCreature
     public bool CanMove = true;
     public bool CanRotate = true;
 
-    public int ContactDamage = 10;
 
     public AttackType AttackPattern;
 

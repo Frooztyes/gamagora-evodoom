@@ -38,7 +38,7 @@ public class EnnemyRadar : MonoBehaviour
         //    ennemies.Add(new EnnemyPos() { ennemyIG = go, ennemyUI = t});
         //}
 
-        NewMax = new Vector2(rectTransform.rect.width / 2, rectTransform.rect.height / 2);
+        NewMax = new Vector2((rectTransform.rect.width / 2) - 10, (rectTransform.rect.height / 2) - 10);
         NewMin = -NewMax;
 
         colliderList = new List<Collider2D>();
@@ -83,6 +83,7 @@ public class EnnemyRadar : MonoBehaviour
 
             RectTransform rect = Instantiate(radarPing, Vector3.zero, Quaternion.identity).GetComponent<RectTransform>();
             rect.SetParent(gameObject.transform);
+            rect.SetSiblingIndex(2);
             rect.anchoredPosition = GetScaledPosition(raycastHit2D.transform.position, NewRange, OldRange, OldMin);
             rect.GetComponent<RadarPing>().SetDisappearTimer(360f / lineSpeed);
         }

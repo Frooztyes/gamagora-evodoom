@@ -5,8 +5,8 @@ using UnityEngine;
 public abstract class LivingCreature : ScriptableObject
 {
     [Header("Health")]
-    public float MaxHealth = 100f;
-    public float Health = 100f;
+    public int MaxHealth = 5;
+    public int Health = 5;
 
     [Header("Movements")]
     public float MoveSpeed = 20f;

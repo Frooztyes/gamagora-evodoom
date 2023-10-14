@@ -40,7 +40,7 @@ public class Projectile : MonoBehaviour
         int layer = collision.gameObject.layer;
         if (layer == LayerMask.NameToLayer("Player") && parentLayer != collision.gameObject.layer)
         {
-            collision.gameObject.GetComponent<MyCharacterController>().TakeDamage(damage, collision.transform.position.x < transform.position.x);
+            collision.gameObject.GetComponent<MyCharacterController>().TakeDamage(collision.transform.position.x < transform.position.x);
             Destroy(gameObject);
         }
         if (layer == LayerMask.NameToLayer("Ennemy") && parentLayer != collision.gameObject.layer)
