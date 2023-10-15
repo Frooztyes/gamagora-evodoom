@@ -17,7 +17,7 @@ public class DashAttack : AttackPattern
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
-        HasFinished = true;
+        hasFinished = true;
     }
 
     private Vector3 GetTargetPosition()
@@ -124,7 +124,7 @@ public class DashAttack : AttackPattern
                 && !animator.IsInTransition(0))
             {
                 animator.SetInteger("AttackAnimation", 3);
-                HasFinished = true;
+                hasFinished = true;
                 isReloading = true;
                 Invoke(nameof(Reload), 1f);
             }
@@ -141,7 +141,7 @@ public class DashAttack : AttackPattern
         animator.SetInteger("AttackAnimation", 2);
         if (Vector2.Distance(player.position, transform.position) > 3)
         {
-            HasFinished = false;
+            hasFinished = false;
             SetTrajectory(player.position, 40);
         }
 
@@ -180,12 +180,12 @@ public class DashAttack : AttackPattern
         player = target;
         animator = anim;
         this.rb = rb; 
-        HasFinished = false;
+        hasFinished = false;
     }
 
     public override void StartAttack()
     {
-        HasFinished = false;
+        hasFinished = false;
         isRunning = true;
         animator.SetInteger("AttackAnimation", 1);
         SetTrajectory(player.position, 30);
@@ -193,5 +193,10 @@ public class DashAttack : AttackPattern
 
     public override void StopAttack()
     {
+    }
+
+    public override bool IsOver()
+    {
+        return hasFinished;
     }
 }

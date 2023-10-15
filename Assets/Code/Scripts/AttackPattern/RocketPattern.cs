@@ -29,7 +29,7 @@ public class RocketPattern : AttackPattern
         rocketLaunch.Play();
         rocketPositionIndex++;
         launching = false;
-        HasFinished = false;
+        hasFinished = false;
     }
     
 
@@ -46,7 +46,7 @@ public class RocketPattern : AttackPattern
         else
         {
             launching = true;
-            HasFinished = true;
+            hasFinished = true;
             isReloading = true;
             rocketPositionIndex = 0;
             Invoke(nameof(CreateMissile), 5f);
@@ -64,5 +64,10 @@ public class RocketPattern : AttackPattern
     public override void StopAttack()
     {
         canStart = false;
+    }
+
+    public override bool IsOver()
+    {
+        return hasFinished;
     }
 }

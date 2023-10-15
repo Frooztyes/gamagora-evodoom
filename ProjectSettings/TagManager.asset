@@ -8,6 +8,9 @@ TagManager:
   - LevitationBar
   - Ennemy
   - Coin
+  - DodgeBar
+  - AmmoBar
+  - ReloadIcon
   layers:
   - Default
   - TransparentFX

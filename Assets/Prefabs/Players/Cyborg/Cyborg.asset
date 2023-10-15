@@ -19,7 +19,9 @@ MonoBehaviour:
   InvincibleTime: 2
   IsDead: 0
   levitationCapacity: 40
-  currentLevitationCapacity: 11.666621
+  currentLevitationCapacity: 40
   levitationRecoveryPerTick: 1
   levitationUsedPerTick: 1
   levitationReductionFlying: 0.333333
+  DashSpeed: 1500
+  cooldownDash: 5

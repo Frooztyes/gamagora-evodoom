@@ -84,4 +84,9 @@ public class VolleyProjectile : AttackPattern
     {
         
     }
+
+    public override bool IsOver()
+    {
+        return hasFinished;
+    }
 }

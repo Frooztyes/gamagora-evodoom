@@ -12,9 +12,13 @@ public class Character : LivingCreature
     public float currentLevitationCapacity = 40f;
     public float levitationRecoveryPerTick = 1f;
     public float levitationUsedPerTick = 1f;
-
     [Range(0f, 1f)]
     public float levitationReductionFlying = 1 / 3;
+
+    [Header("Dash")]
+    public float DashSpeed = 1500f;
+    public float cooldownDash = 1f;
+
 
     public float GetJumpForce(bool flying)
     {

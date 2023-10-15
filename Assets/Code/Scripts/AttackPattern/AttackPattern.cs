@@ -4,8 +4,8 @@ using UnityEngine;
 
 public abstract class AttackPattern : MonoBehaviour
 {
-    public bool HasFinished = true;
-
+    protected bool hasFinished = true;
+    public abstract bool IsOver();
     public abstract void StartAttack();
     public abstract void StopAttack();
 }

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 617af5602a831034d9afdb826dd97fd6, type: 3}
   m_Name: Blaster
   m_EditorClassIdentifier: 
-  MaxMagazineCapacity: 3
-  MagazineCapacity: 3
+  MaxMagazineCapacity: 6
+  MagazineCapacity: 6
   RotationSpeed: 10
   RecoilStrength: 0.1
   Damage: 10

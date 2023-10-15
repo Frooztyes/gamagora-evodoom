@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.TextCore.Text;
@@ -28,6 +30,13 @@ public class MyCharacterController : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private Transform flashLight;
 
+    [SerializeField] private Sprite reloadIcon;
+    [SerializeField] private Color HighAmmoColor;
+    [SerializeField] private Color MediumAmmoColor;
+    [SerializeField] private Color LowAmmoColor;
+    [SerializeField] private Color EmptyAmmoColor;
+    private Sprite gunIcon;
+
     private Character editableChar;
     private Gun editableGun;
     private AudioSource characterAudioSource;
@@ -41,14 +50,21 @@ public class MyCharacterController : MonoBehaviour
     private Animation gunAnimation;
 
     private Image levitationIndicator;
+    private Image dodgeIndicator;
+    private Image ammoBar;
     private AudioSource[] gunSounds;
     private SpriteRenderer sprite;
+    private TextMeshProUGUI maxAmmo;
+    private TextMeshProUGUI currentAmmo;
+    private Image reloadUI;
 
     // variable de framing invincible
     private bool isInvincible;
     private bool isStunned = false;
 
     private HealthBars healthBars;
+
+    private float cooldownDashInternal;
 
     void Start()
     {
@@ -64,11 +80,24 @@ public class MyCharacterController : MonoBehaviour
         defaultFacing = transform.localScale.x > 0;
         rb = GetComponent<Rigidbody2D>();
         isGrounded = false;
+
         levitationIndicator = GameObject.FindGameObjectWithTag("LevitationBar").GetComponent<Image>();
         healthBars = GameObject.FindGameObjectWithTag("HealthBar").GetComponent<HealthBars>();
+        dodgeIndicator = GameObject.FindGameObjectWithTag("DodgeBar").GetComponent<Image>();
+        ammoBar = GameObject.FindGameObjectWithTag("AmmoBar").GetComponent<Image>();
+        maxAmmo = ammoBar.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+        currentAmmo = ammoBar.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+        reloadUI = GameObject.FindGameObjectWithTag("ReloadIcon").GetComponent<Image>();
+
+        gunIcon = reloadUI.sprite;
         healthBars.SetHealth(editableChar.Health);
         healthBars.AddSheild();
 
+        currentAmmo.text = editableGun.MagazineCapacity.ToString();
+        maxAmmo.text = editableGun.MaxMagazineCapacity.ToString();
+
+        cooldownDashInternal = editableChar.cooldownDash;
+        editableChar.currentLevitationCapacity = editableChar.levitationCapacity;
 
         characterAudioSource = GetComponent<AudioSource>();
     }
@@ -102,9 +131,17 @@ public class MyCharacterController : MonoBehaviour
 
         if(gunGFX)
             gunGFX.transform.rotation = Quaternion.Slerp(gunGFX.transform.rotation, qTo, Time.fixedDeltaTime * editableGun.RotationSpeed);
-        if (!gunAnimation.isPlaying && editableGun.MagazineCapacity == 0)
+        if (!gunAnimation.isPlaying && isReloading)
         {
+            reloadUI.transform.rotation = Quaternion.Euler(Vector3.zero);
+            reloadUI.sprite = gunIcon;
             editableGun.Reload();
+            ammoBar.color = HighAmmoColor;
+            isReloading = false;
+        }
+        if(editableGun.MagazineCapacity == 0)
+        {
+            reloadUI.transform.Rotate(Vector3.forward * 10);
         }
 
         if(isGrounded && isStunned)
@@ -122,6 +159,9 @@ public class MyCharacterController : MonoBehaviour
 
         flashLight.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle + 90f));
     }
+
+    private bool isReloading = false;
+
     void PlayRandomWalkingSound()
     {
         int randomIndex = Random.Range(0, walkingSounds.Count);
@@ -129,37 +169,90 @@ public class MyCharacterController : MonoBehaviour
         characterAudioSource.Play();
     }
 
-    public void Move(float amount, bool flying, bool shooting)
+    private bool IsAnimationFinished(string animationName)
     {
-        if (!characterAudioSource.isPlaying) characterAudioSource.clip = null;
+        return animator.GetCurrentAnimatorStateInfo(0).IsName(animationName)
+               && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1
+               && !animator.IsInTransition(0);
+    }
+
+    private void UpdateBars()
+    {
+        editableChar.UpdateLevitation(isFlying, isGrounded);
+        levitationIndicator.fillAmount = editableChar.GetLevitationFillAmount();
+        dodgeIndicator.fillAmount = Mathf.Clamp(cooldownDashInternal, 0, editableChar.cooldownDash) / editableChar.cooldownDash;
+        currentAmmo.text = editableGun.MagazineCapacity.ToString();
+        maxAmmo.text = editableGun.MaxMagazineCapacity.ToString();
+    }
+
+    public bool hasDodge = false;
+    public void Move(float amount, bool flying, bool shooting, bool dodge, bool reloading)
+    {
         isFlying = flying;
-        if (isStunned) return;
-        animator.SetFloat("Speed", Mathf.Abs(amount));
-        if (flying)
+
+        // updating dash cooldown
+        if (cooldownDashInternal <= editableChar.cooldownDash)
+            cooldownDashInternal += Time.fixedDeltaTime;
+
+        if (IsAnimationFinished("Cyborg_dash"))
         {
-            animator.SetBool("IsJumping", flying);
+            animator.SetBool("IsDodging", false);
+            hasDodge = false;
+            rb.velocity = Vector2.up * rb.velocity;
         }
 
+        UpdateBars();
+
+        // can't do any action if stunned or dodging
+        if (isStunned || hasDodge) return;
+
+
+
         amount *= editableChar.MoveSpeed;
+        animator.SetFloat("Speed", Mathf.Abs(amount));
 
-        if (amount < 0 && defaultFacing) FlipCharacter();
-        else if (amount > 0 && !defaultFacing) FlipCharacter();
+        if (flying)
+            animator.SetBool("IsJumping", flying);
 
-        transform.Translate(Vector3.right * amount);
-        if(Mathf.Abs(amount) > 0.01f && !characterAudioSource.isPlaying && !flying && isGrounded)
-            PlayRandomWalkingSound();
-
-        rb.AddForce(Vector2.up * editableChar.GetJumpForce(flying));
-        editableChar.UpdateLevitation(flying, isGrounded);
-        levitationIndicator.fillAmount = editableChar.GetLevitationFillAmount();
-
-        if (shooting)
+        if (shooting && !isReloading)
         {
             rb.AddForce((defaultFacing ? Vector3.left : Vector3.right) * editableGun.RecoilStrength);
             ShootProjectile();
         }
 
-        if((!isGrounded || isFlying) && !shooting)
+
+        // sound event
+        if (!characterAudioSource.isPlaying) characterAudioSource.clip = null;
+        if (Mathf.Abs(amount) > 0.01f && !characterAudioSource.isPlaying && !flying && isGrounded)
+            PlayRandomWalkingSound();
+
+        // dodge event
+        if (dodge && cooldownDashInternal >= editableChar.cooldownDash)
+        {
+            animator.SetBool("IsDodging", true);
+            hasDodge = true;
+            rb.AddForce(Vector2.right * editableChar.DashSpeed * (defaultFacing ? 1 : -1));
+            cooldownDashInternal = 0;
+            return;
+        }
+
+        // fliping direction
+        if (amount < 0 && defaultFacing) FlipCharacter();
+        else if (amount > 0 && !defaultFacing) FlipCharacter();
+
+        // movement force
+        transform.Translate(Vector3.right * amount);
+        // jump force
+        rb.AddForce(Vector2.up * editableChar.GetJumpForce(flying));
+
+        if(reloading && !isReloading)
+        {
+            isReloading = true;
+            reloadUI.sprite = reloadIcon;
+            gunAnimation.Play();
+        }
+
+        if ((!isGrounded || isFlying) && !shooting)
         {
             //gunGFX.position = gunPosition.position;
         }
@@ -235,10 +328,31 @@ public class MyCharacterController : MonoBehaviour
         p.SetStatistics(dir, editableGun.Damage, gameObject.layer);
 
         editableGun.MagazineCapacity--;
-        if (editableGun.MagazineCapacity == 0)
+        if (editableGun.MagazineCapacity == 0 && !isReloading)
         {
+            reloadUI.sprite = reloadIcon;
             gunAnimation.Play();
+            isReloading = true;
         }
+
+        float percentMagazine = (float)editableGun.MagazineCapacity / editableGun.MaxMagazineCapacity;
+        if(percentMagazine == 0)
+        {
+            ammoBar.color = EmptyAmmoColor;
+        } 
+        else if (percentMagazine <= 1.0f / 3)
+        {
+            ammoBar.color = LowAmmoColor;
+        }
+        else if (percentMagazine <= 2.0f / 3)
+        {
+            ammoBar.color = MediumAmmoColor;
+        }
+        else
+        {
+            ammoBar.color = HighAmmoColor;
+        }
+
         gunGFX.GetComponent<FloatingAnimation>().Recoil(dir.x < 0);
     }
 

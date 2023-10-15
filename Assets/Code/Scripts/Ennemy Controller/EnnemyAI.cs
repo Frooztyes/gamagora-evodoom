@@ -159,8 +159,7 @@ public class EnnemyAI : MonoBehaviour
             EnterDeadState();
             return State.DEAD;
         }
-
-        if (attackGameObject != null && !attackGameObject.HasFinished) return State.SHOOT;
+        if (attackGameObject != null && !attackGameObject.IsOver()) return State.SHOOT;
 
         if (IsTargetInShootingRange() && currentState == State.SHOOT) return State.SHOOT;
         else if (IsTargetInShootingRange() && (currentState == State.IDLE || currentState == State.RUN))
@@ -307,8 +306,15 @@ public class EnnemyAI : MonoBehaviour
 
     void TickShootState()
     {
-        if (editableEnnemy.CanRotate)
+        if (editableEnnemy.CanRotate && 
+            (
+                editableEnnemy.AttackPattern != Ennemy.AttackType.LASER || 
+                (editableEnnemy.AttackPattern == Ennemy.AttackType.LASER && attackGameObject.IsOver())
+            )
+           )
+        {
             transform.localRotation = Quaternion.Euler(0, target.position.x < transform.position.x ? 180 : 0, 0);
+        }
 
         switch (editableEnnemy.AttackPattern)
         {
@@ -321,7 +327,7 @@ public class EnnemyAI : MonoBehaviour
             case Ennemy.AttackType.MELEE:
                 animator.SetFloat("Speed", 0f);
                 DashAttack d = ennemyGFX.GetComponent<DashAttack>();
-                if (d && d.HasFinished && rb.velocity == Vector2.zero && !d.IsReloading())
+                if (d && d.IsOver() && rb.velocity == Vector2.zero && !d.IsReloading())
                 {
                     d.StartAttack();
                 }
@@ -442,6 +448,9 @@ public class EnnemyAI : MonoBehaviour
     void FixedUpdate()
     {
         currentState = ChangeState();
+        if (currentState != State.SHOOT && attackGameObject && attackGameObject.IsOver())
+            Destroy(attackGameObject.gameObject);
+
         if (currentState == State.DEAD)
         {
             // handle death
@@ -471,7 +480,7 @@ public class EnnemyAI : MonoBehaviour
         if(currentState == State.SHOOT && editableEnnemy.AttackPattern == Ennemy.AttackType.MELEE)
         {
             DashAttack d = ennemyGFX.GetComponent<DashAttack>();
-            if (d && !d.HasFinished)
+            if (d && !d.IsOver())
             {
                 return editableEnnemy.ContactDamage * 2;
             }
