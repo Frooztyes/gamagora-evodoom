@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 public class EnnemyRadar : MonoBehaviour
 {
@@ -45,13 +44,14 @@ public class EnnemyRadar : MonoBehaviour
 
     }
 
-
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         if(player == null) player = GameObject.FindGameObjectWithTag("Player").transform;
         Handles.color = Color.blue;
         Handles.DrawWireDisc(player.position, transform.forward, radarDistance);
     }
+#endif
 
     // Update is called once per frame
     void Update()

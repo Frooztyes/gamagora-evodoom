@@ -49,6 +49,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "MoveCursor",
+                    "type": "Value",
+                    "id": "40a7d90a-903f-4fc3-9929-a45af8e2418f",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -326,6 +335,61 @@
                     "action": "Reload",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "Controller",
+                    "id": "dbb02063-a201-4c82-ad48-a2a270574eef",
+                    "path": "2DVector(mode=2)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveCursor",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "f72ee97f-5ce4-46e8-a0be-cef646598fba",
+                    "path": "<Gamepad>/rightStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveCursor",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "3ad76d1f-821e-47b4-9402-e86b9c676f1f",
+                    "path": "<Gamepad>/rightStick/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveCursor",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "a3a23479-a685-4ef5-b3d7-0978df58533e",
+                    "path": "<Gamepad>/rightStick/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveCursor",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "de8195fa-7621-4fee-9cdd-35547aea4555",
+                    "path": "<Gamepad>/rightStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveCursor",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         }

@@ -119,6 +119,7 @@ public class EnnemyAI : MonoBehaviour
     }
 
     #region Editor
+    #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         if (editableEnnemy == null) editableEnnemy = Instantiate(ennemy);
@@ -127,6 +128,7 @@ public class EnnemyAI : MonoBehaviour
         Handles.color = Color.green;
         Handles.DrawWireDisc(transform.position, transform.forward, editableEnnemy.ShootRadius);
     }
+    #endif
     #endregion
 
     #region A*
@@ -187,7 +189,6 @@ public class EnnemyAI : MonoBehaviour
         }
 
         return currentState;
-
     }
 
     #region RunState

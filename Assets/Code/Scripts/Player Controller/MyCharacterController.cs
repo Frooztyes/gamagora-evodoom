@@ -52,6 +52,7 @@ public class MyCharacterController : MonoBehaviour
     private Image levitationIndicator;
     private Image dodgeIndicator;
     private Image ammoBar;
+    private Transform cursor;
     private AudioSource[] gunSounds;
     private SpriteRenderer sprite;
     private TextMeshProUGUI maxAmmo;
@@ -68,6 +69,7 @@ public class MyCharacterController : MonoBehaviour
 
     void Start()
     {
+        Cursor.visible = false;
         sprite = GetComponent<SpriteRenderer>();
         editableChar = Instantiate(character);
         editableGun = Instantiate(gun);
@@ -88,6 +90,7 @@ public class MyCharacterController : MonoBehaviour
         maxAmmo = ammoBar.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
         currentAmmo = ammoBar.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
         reloadUI = GameObject.FindGameObjectWithTag("ReloadIcon").GetComponent<Image>();
+        cursor = GameObject.FindGameObjectWithTag("Cursor").GetComponent<Transform>();
 
         gunIcon = reloadUI.sprite;
         healthBars.SetHealth(editableChar.Health);
@@ -157,7 +160,7 @@ public class MyCharacterController : MonoBehaviour
         //Get the angle between the points
         float angle = AngleBetweenTwoPoints(positionOnScreen, mouseOnScreen);
 
-        flashLight.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle + 90f));
+        //flashLight.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle + 90f));
     }
 
     private bool isReloading = false;
@@ -186,7 +189,7 @@ public class MyCharacterController : MonoBehaviour
     }
 
     public bool hasDodge = false;
-    public void Move(float amount, bool flying, bool shooting, bool dodge, bool reloading)
+    public void Move(float amount, bool flying, bool shooting, bool dodge, bool reloading, Vector2 cursorAiming)
     {
         isFlying = flying;
 
@@ -202,6 +205,8 @@ public class MyCharacterController : MonoBehaviour
         }
 
         UpdateBars();
+
+        SetCursorPosition(cursorAiming);
 
         // can't do any action if stunned or dodging
         if (isStunned || hasDodge) return;
@@ -256,6 +261,37 @@ public class MyCharacterController : MonoBehaviour
         {
             //gunGFX.position = gunPosition.position;
         }
+
+    }
+    private Vector2 cursorDir;
+    private float desiredRot;
+    private void SetCursorPosition(Vector2 position)
+    {
+        var desiredRotQ = Quaternion.Euler(Vector3.forward * Vector2.SignedAngle(Vector2.right, cursorDir));
+        var desiredRotQFlashLight = Quaternion.Euler(Vector3.forward * (Vector2.SignedAngle(Vector2.right, cursorDir) - 90));
+        flashLight.rotation = Quaternion.Lerp(flashLight.rotation, desiredRotQFlashLight, Time.deltaTime * 20);
+        cursor.transform.rotation = Quaternion.Lerp(cursor.transform.rotation, desiredRotQ, Time.deltaTime * 20);
+        cursor.transform.GetChild(0).localRotation = Quaternion.Euler(cursor.transform.rotation.eulerAngles.z * -Vector3.forward);
+        cursor.transform.position = gunGFX.GetChild(0).position;
+        cursor.transform.position = gunGFX.GetChild(0).position;
+
+        if (position.magnitude < 0.9 && Input.GetJoystickNames().Length != 0)
+        {
+            return;
+        }
+        if (Input.GetJoystickNames().Length == 0)
+        {
+            position = (getMousePosition() - gunGFX.GetChild(0).position).normalized;
+        } 
+        else
+        {
+            position.y *= -1;
+        }
+
+
+        //cursor.transform.GetChild(0).localRotation = Quaternion.Euler(-Vector3.forward * Vector2.SignedAngle(Vector2.right, position));
+        cursor.gameObject.SetActive(true);
+        cursorDir = position;
     }
 
     public void TakeDamage(bool fromRight, int damage = 1)
@@ -319,7 +355,8 @@ public class MyCharacterController : MonoBehaviour
         {
             gunSound.Play();
         }
-        Vector2 dir = (getMousePosition() - gunGFX.GetChild(0).position).normalized;
+
+        Vector2 dir = cursorDir;
         if (dir.x < 0 && defaultFacing || dir.x >= 0 && !defaultFacing)
             FlipCharacter();
 

@@ -13,6 +13,7 @@ public class PlayerInputs : MonoBehaviour
     private CustomInputs input = null;
     private Vector2 moveVector = Vector2.zero;
     private float jumpValue = 0;
+    private Vector2 cursorAiming = Vector2.zero;
 
     private MyCharacterController controller;
 
@@ -26,7 +27,7 @@ public class PlayerInputs : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        controller.Move(moveVector.x * Time.fixedDeltaTime, moveVector.y > 0 || jumpValue > 0f, shooting, dodging, reloading);
+        controller.Move(moveVector.x * Time.fixedDeltaTime, moveVector.y > 0 || jumpValue > 0f, shooting, dodging, reloading, cursorAiming);
         shooting = false;
         dodging = false;
         reloading = false;
@@ -49,6 +50,9 @@ public class PlayerInputs : MonoBehaviour
 
         input.Player.Reload.performed += OnReloadingPerformed;
         input.Player.Reload.canceled += OnReloadingCanceled;
+
+        input.Player.MoveCursor.performed += OnControllerCursorPerformed;
+        input.Player.MoveCursor.canceled += OnControllerCursorCanceled;
     }
 
     private void OnDisable()
@@ -68,6 +72,9 @@ public class PlayerInputs : MonoBehaviour
 
         input.Player.Reload.performed -= OnReloadingPerformed;
         input.Player.Reload.canceled  -= OnReloadingCanceled;
+
+        input.Player.MoveCursor.performed -= OnControllerCursorPerformed;
+        input.Player.MoveCursor.canceled -= OnControllerCursorCanceled;
     }
 
     // Start is called before the first frame update
@@ -124,6 +131,16 @@ public class PlayerInputs : MonoBehaviour
     private void OnReloadingCanceled(InputAction.CallbackContext value)
     {
         reloading = false;
+    }
+
+    private void OnControllerCursorPerformed(InputAction.CallbackContext value)
+    {
+        cursorAiming = value.ReadValue<Vector2>();
+    }
+
+    private void OnControllerCursorCanceled(InputAction.CallbackContext value)
+    {
+        cursorAiming = Vector2.zero;
     }
 
 }

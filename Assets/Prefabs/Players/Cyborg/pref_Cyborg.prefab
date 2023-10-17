@@ -378,6 +378,13 @@ MonoBehaviour:
   otherSoundsEffect: {fileID: 0}
   coinSound: {fileID: 0}
   animator: {fileID: 0}
+  flashLight: {fileID: 0}
+  reloadIcon: {fileID: 0}
+  HighAmmoColor: {r: 0, g: 0, b: 0, a: 0}
+  MediumAmmoColor: {r: 0, g: 0, b: 0, a: 0}
+  LowAmmoColor: {r: 0, g: 0, b: 0, a: 0}
+  EmptyAmmoColor: {r: 0, g: 0, b: 0, a: 0}
+  hasDodge: 0
 --- !u!114 &7292689519996825625
 MonoBehaviour:
   m_ObjectHideFlags: 0

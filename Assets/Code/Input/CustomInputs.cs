@@ -71,6 +71,15 @@ public partial class @CustomInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MoveCursor"",
+                    ""type"": ""Value"",
+                    ""id"": ""40a7d90a-903f-4fc3-9929-a45af8e2418f"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -348,6 +357,61 @@ public partial class @CustomInputs: IInputActionCollection2, IDisposable
                     ""action"": ""Reload"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""Controller"",
+                    ""id"": ""dbb02063-a201-4c82-ad48-a2a270574eef"",
+                    ""path"": ""2DVector(mode=2)"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCursor"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""f72ee97f-5ce4-46e8-a0be-cef646598fba"",
+                    ""path"": ""<Gamepad>/rightStick/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCursor"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""3ad76d1f-821e-47b4-9402-e86b9c676f1f"",
+                    ""path"": ""<Gamepad>/rightStick/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCursor"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""a3a23479-a685-4ef5-b3d7-0978df58533e"",
+                    ""path"": ""<Gamepad>/rightStick/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCursor"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""de8195fa-7621-4fee-9cdd-35547aea4555"",
+                    ""path"": ""<Gamepad>/rightStick/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCursor"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -361,6 +425,7 @@ public partial class @CustomInputs: IInputActionCollection2, IDisposable
         m_Player_Shoot = m_Player.FindAction("Shoot", throwIfNotFound: true);
         m_Player_Dodge = m_Player.FindAction("Dodge", throwIfNotFound: true);
         m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
+        m_Player_MoveCursor = m_Player.FindAction("MoveCursor", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -427,6 +492,7 @@ public partial class @CustomInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Shoot;
     private readonly InputAction m_Player_Dodge;
     private readonly InputAction m_Player_Reload;
+    private readonly InputAction m_Player_MoveCursor;
     public struct PlayerActions
     {
         private @CustomInputs m_Wrapper;
@@ -436,6 +502,7 @@ public partial class @CustomInputs: IInputActionCollection2, IDisposable
         public InputAction @Shoot => m_Wrapper.m_Player_Shoot;
         public InputAction @Dodge => m_Wrapper.m_Player_Dodge;
         public InputAction @Reload => m_Wrapper.m_Player_Reload;
+        public InputAction @MoveCursor => m_Wrapper.m_Player_MoveCursor;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -460,6 +527,9 @@ public partial class @CustomInputs: IInputActionCollection2, IDisposable
             @Reload.started += instance.OnReload;
             @Reload.performed += instance.OnReload;
             @Reload.canceled += instance.OnReload;
+            @MoveCursor.started += instance.OnMoveCursor;
+            @MoveCursor.performed += instance.OnMoveCursor;
+            @MoveCursor.canceled += instance.OnMoveCursor;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -479,6 +549,9 @@ public partial class @CustomInputs: IInputActionCollection2, IDisposable
             @Reload.started -= instance.OnReload;
             @Reload.performed -= instance.OnReload;
             @Reload.canceled -= instance.OnReload;
+            @MoveCursor.started -= instance.OnMoveCursor;
+            @MoveCursor.performed -= instance.OnMoveCursor;
+            @MoveCursor.canceled -= instance.OnMoveCursor;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -503,5 +576,6 @@ public partial class @CustomInputs: IInputActionCollection2, IDisposable
         void OnShoot(InputAction.CallbackContext context);
         void OnDodge(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
+        void OnMoveCursor(InputAction.CallbackContext context);
     }
 }

@@ -11,6 +11,7 @@ TagManager:
   - DodgeBar
   - AmmoBar
   - ReloadIcon
+  - Cursor
   layers:
   - Default
   - TransparentFX
