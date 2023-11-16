@@ -70,6 +70,9 @@ public class HealthBars : MonoBehaviour
 
     public void SetHealth(int nbBars)
     {
+        activeHealthBars = new Stack<GameObject>();
+        loosedHealthBars = new Stack<GameObject>();
+        sheilds = new Stack<GameObject>();
         for (int i = 0; i < nbBars; i++)
         {
             GameObject bar = Instantiate(healthBar);
