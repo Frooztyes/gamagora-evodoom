@@ -15,18 +15,17 @@ public class MenuHandler : MonoBehaviour
 
     [SerializeField] private Color activeColor;
     [SerializeField] private Color inactiveColor;
-    [SerializeField] private float timeoutMax = 0.1f;
     [SerializeField] private AudioSource changeSound;
     [SerializeField] private AudioSource clickSound;
     [SerializeField] private Image canvasFade;
+    [SerializeField] private GameObject options;
 
 
-    [SerializeField] private SceneAsset gameScene;
+    [SerializeField] private string gameScene;
 
     private Color fullBlack;
     private Color transparency;
 
-    private float timeout = 0f;
     private CustomInputs input = null;
 
     private List<Image> icons;
@@ -53,19 +52,10 @@ public class MenuHandler : MonoBehaviour
 
     private void OnChangePerformed(InputAction.CallbackContext value)
     {
-        // eviter les déplacements trop rapide
-        if (timeout > 0f) return;
-        timeout = timeoutMax;
-
-        Vector2 valueInput = value.ReadValue<Vector2>();
-        if(valueInput.y > 0)
-        {
-            SetButtonAt(currentId - 1);
-        }
-        else if(valueInput.y < 0)
-        {
-            SetButtonAt(currentId + 1);
-        }
+        float offset = value.ReadValue<float>();
+        if (offset > 0) offset = 1;
+        else if (offset < 0) offset = -1;
+        SetButtonAt(currentId + (int)offset);
     }
 
     private void OnPressPerformed(InputAction.CallbackContext value)
@@ -98,7 +88,7 @@ public class MenuHandler : MonoBehaviour
 
     void SetGameScene()
     {
-        SceneManager.LoadScene(gameScene.name);
+        SceneManager.LoadScene(gameScene);
     }
 
     void QuitApplication()
@@ -107,6 +97,12 @@ public class MenuHandler : MonoBehaviour
         EditorApplication.isPlaying = false;
 #endif
         Application.Quit();
+    }
+
+    void OptionMenu()
+    {
+        gameObject.SetActive(false);
+        options.SetActive(true);
     }
 
     void ActionHandler()
@@ -119,7 +115,7 @@ public class MenuHandler : MonoBehaviour
                 break;
 
             case 1:
-                Debug.Log("Options");
+                OptionMenu();
                 break;
 
             case 2:
@@ -162,10 +158,6 @@ public class MenuHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (timeout > -1)
-        {
-            timeout -= Time.deltaTime;
-        }
         if(isFading)
         {
             canvasFade.color = Color.Lerp(new Color(0f, 0f, 0f, 0f), Color.black, fadeElapsed / lerpDuration);

@@ -17,6 +17,7 @@ public class MoveShip : MonoBehaviour
 
     void GetNextPos()
     {
+        Debug.Log(Screen.width);
         nextPos.x = Random.Range(0.1f * Screen.width, 0.9f * Screen.width);
         nextPos.y = Random.Range(0.1f * Screen.height, 0.9f * Screen.height);
         speed = Random.Range(0.8f, 1.2f);

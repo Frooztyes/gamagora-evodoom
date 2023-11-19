@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-public class VolumeSettings : MonoBehaviour
+public class VolumeSettings : OptionHandlerAb
 {
     [SerializeField] private AudioMixer mixer;
     [SerializeField] private Slider masterSlider;
@@ -38,10 +38,22 @@ public class VolumeSettings : MonoBehaviour
         mixer.SetFloat(MIXER_EFFECT, Mathf.Log10(value) * 20);
     }
 
-
-    // Update is called once per frame
-    void Update()
+    public override void DoAction(int index, int dir)
     {
-        
+        switch(index)
+        {
+            case 0:
+                masterSlider.value += masterSlider.maxValue * 0.05f * dir;
+                break;
+            case 1:
+                effectsSlider.value += effectsSlider.maxValue * 0.05f * dir;
+                break;
+            case 2:
+                musicSlider.value += musicSlider.maxValue * 0.05f * dir;
+                break;
+
+            default:
+                break;
+        }
     }
 }
