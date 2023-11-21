@@ -7,7 +7,7 @@ public class ScrollingBackground : MonoBehaviour
     private Vector2 length;
     private Vector2 startPos;
     [SerializeField] private float speed = 10f;
-    [SerializeField] private Vector2 dir = Vector2.left;
+    [SerializeField] public Vector2 dir = Vector2.left;
     // Start is called before the first frame update
     void Start()
     {

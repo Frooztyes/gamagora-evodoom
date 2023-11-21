@@ -33,7 +33,7 @@ public class CinematicShip : MonoBehaviour
     [SerializeField] List<GameObject> mudParticles;
     [Range(0, 1)]
     [SerializeField] private float percentAddMudSound = 0.8f;
-    [SerializeField] private GameObject mudBackground;
+    [SerializeField] private ScrollingBackground mudBackground;
 
     private Vector3 startScale;
     private Vector3 endScale;
@@ -44,7 +44,7 @@ public class CinematicShip : MonoBehaviour
 
     private void Start()
     {
-        mudBackground.SetActive(false);
+        mudBackground.gameObject.SetActive(false);
         transform.position = startingPosition.position;
         isAtRotation = false;
         mainCam = Camera.main.GetComponent<CameraFollow>();
@@ -125,7 +125,7 @@ public class CinematicShip : MonoBehaviour
     private void SecondPart()
     {
         background.SetActive(false);
-        mudBackground.SetActive(true);
+        mudBackground.gameObject.SetActive(true);
         cinematicPart = 2;
         transform.localScale *= 2;
         transform.position = mudStartingPosition.position;
@@ -136,7 +136,12 @@ public class CinematicShip : MonoBehaviour
         multiplier = 1;
         explosionOffset = mudStartingPosition.position;
         Invoke(nameof(AddExplosion), 0);
-        foreach(GameObject particle in mudParticles)
+
+        var angle = Vector2.SignedAngle(Vector2.right, mudBackground.dir) + 90f;
+        var targetRotation = new Vector3(0, 0, angle);
+        transform.rotation = Quaternion.Euler(targetRotation);
+
+        foreach (GameObject particle in mudParticles)
         {
             particle.SetActive(true);
         }
