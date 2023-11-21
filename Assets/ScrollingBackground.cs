@@ -4,23 +4,41 @@ using UnityEngine;
 
 public class ScrollingBackground : MonoBehaviour
 {
-    private float length, startPos;
+    private Vector2 length;
+    private Vector2 startPos;
     [SerializeField] private float speed = 10f;
+    [SerializeField] private Vector2 dir = Vector2.left;
     // Start is called before the first frame update
     void Start()
     {
-        startPos = transform.position.x;
-        length = GetComponent<SpriteRenderer>().bounds.size.x;
+        startPos = transform.position;
+        length = GetComponent<SpriteRenderer>().bounds.size;
     }
 
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.left * Time.deltaTime * speed);
+        transform.Translate(dir * Time.deltaTime * speed);
 
-        if (transform.position.x < startPos - length)
+        if (transform.position.x < startPos.x - length.x)
         {
-            transform.position = new Vector3(startPos, transform.position.y, transform.position.z);
+            transform.position = new Vector3(startPos.x, transform.position.y, transform.position.z);
+        }
+
+        if (transform.position.x > startPos.x + length.x)
+        {
+            transform.position = new Vector3(startPos.x, transform.position.y, transform.position.z);
+        }
+
+
+        if (transform.position.y < startPos.y - length.y)
+        {
+            transform.position = new Vector3(transform.position.x, startPos.y, transform.position.z);
+        }
+
+        if (transform.position.y > startPos.y + length.y)
+        {
+            transform.position = new Vector3(transform.position.x, startPos.y, transform.position.z);
         }
     }
 }

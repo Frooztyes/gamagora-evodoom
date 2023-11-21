@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class FadeHandler : MonoBehaviour
 {
     private Image panel;
-    public bool IsFading { get; private set; }
+    public bool IsFading { get; set; }
 
     private float fadeElapsed = 0f;
     private float fadeDuration;
