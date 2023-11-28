@@ -7,6 +7,9 @@ using UnityEngine.TextCore.Text;
 [CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/Character", order = 1)]
 public class Character : LivingCreature
 {
+    [Header("Sheild")]
+    public float DefaultSheild = 0;
+
     [Header("Levitation")]
     public float levitationCapacity = 40f;
     public float currentLevitationCapacity = 40f;

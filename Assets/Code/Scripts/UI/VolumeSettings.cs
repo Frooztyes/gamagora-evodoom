@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class VolumeSettings : OptionHandlerAb
 {
+    [SerializeField] private SaveSettings saveHandler;
     [SerializeField] private AudioMixer mixer;
     [SerializeField] private Slider masterSlider;
     [SerializeField] private Slider musicSlider;
@@ -15,27 +16,42 @@ public class VolumeSettings : OptionHandlerAb
     const string MIXER_EFFECT = "EffectVolume";
     const string MIXER_MASTER = "MasterVolume";
 
-    // Start is called before the first frame update
     void Start()
     {
         musicSlider.onValueChanged.AddListener(SetMusicVolume);
         masterSlider.onValueChanged.AddListener(SetMasterVolume);
         effectsSlider.onValueChanged.AddListener(SetEffectVolume);
+
+        float musicValue = saveHandler.sd.musicVolume;
+        float effectValue = saveHandler.sd.effectVolume;
+        float masterValue = saveHandler.sd.masterVolume;
+
+        SetMasterVolume(masterValue);
+        musicSlider.value = masterValue;
+
+        SetMusicVolume(musicValue);
+        effectsSlider.value = musicValue;
+
+        SetEffectVolume(effectValue);
+        masterSlider.value = effectValue;
     }
 
     void SetMusicVolume(float value)
     {
         mixer.SetFloat(MIXER_MUSIC, Mathf.Log10(value) * 20);
+        saveHandler.sd.musicVolume = value;
     }
 
     void SetMasterVolume(float value)
     {
         mixer.SetFloat(MIXER_MASTER, Mathf.Log10(value) * 20);
+        saveHandler.sd.masterVolume = value;
     }
 
     void SetEffectVolume(float value)
     {
         mixer.SetFloat(MIXER_EFFECT, Mathf.Log10(value) * 20);
+        saveHandler.sd.effectVolume = value;
     }
 
     public override void DoAction(int index, int dir)
@@ -55,5 +71,6 @@ public class VolumeSettings : OptionHandlerAb
             default:
                 break;
         }
+        saveHandler.PopulateSaveData(saveHandler.sd);
     }
 }

@@ -6,16 +6,17 @@ using UnityEngine;
 
 public class QualityHandler : OptionHandlerAb
 {
+    [SerializeField] private SaveSettings saveHandler;
     [SerializeField] private TextMeshProUGUI qualityText;
 
-    private Dictionary<string, int> qualities = new()
+    private List<string> qualities = new()
     {
-        {"Very Low", 0},
-        {"Low", 1},
-        {"Medium", 2},
-        {"High", 3},
-        {"Very High", 4},
-        {"Ultra", 5},
+        "Very Low",
+        "Low",
+        "Medium",
+        "High",
+        "Very High",
+        "Ultra", 
     };
 
     int currentQuality;
@@ -23,7 +24,8 @@ public class QualityHandler : OptionHandlerAb
     // Start is called before the first frame update
     void Start()
     {
-        SetQuality(qualities.Count - 1);
+        int quality = saveHandler.sd.quality;
+        SetQuality(quality);
     }
 
     public void SetQuality(int offset)
@@ -38,13 +40,15 @@ public class QualityHandler : OptionHandlerAb
             nextIndex = qualities.Count - 1;
         }
 
-        QualitySettings.SetQualityLevel(qualities.ElementAt(nextIndex).Value);
-        qualityText.text = qualities.ElementAt(nextIndex).Key;
+        QualitySettings.SetQualityLevel(nextIndex);
+        saveHandler.sd.quality = nextIndex;
+        qualityText.text = qualities.ElementAt(nextIndex);
         currentQuality = nextIndex;
     }
 
     public override void DoAction(int index, int dir)
     {
         SetQuality(dir);
+        saveHandler.PopulateSaveData(saveHandler.sd);
     }
 }

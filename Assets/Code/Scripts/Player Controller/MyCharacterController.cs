@@ -37,7 +37,7 @@ public class MyCharacterController : MonoBehaviour
     [SerializeField] private Color EmptyAmmoColor;
     private Sprite gunIcon;
 
-    private Character editableChar;
+    public Character editableChar { get; private set; }
     private Gun editableGun;
     private AudioSource characterAudioSource;
 
@@ -94,7 +94,10 @@ public class MyCharacterController : MonoBehaviour
 
         gunIcon = reloadUI.sprite;
         healthBars.SetHealth(editableChar.Health);
-        healthBars.AddSheild();
+        for (int i = 0; i < editableChar.DefaultSheild; i++)
+        {
+            healthBars.AddSheild();
+        }
 
         currentAmmo.text = editableGun.MagazineCapacity.ToString();
         maxAmmo.text = editableGun.MaxMagazineCapacity.ToString();
@@ -297,8 +300,10 @@ public class MyCharacterController : MonoBehaviour
     public void TakeDamage(bool fromRight, int damage = 1)
     {
         if (isInvincible) return;
-        editableChar.TakeDamage(damage);
-        healthBars.RemoveOne();
+        if(!editableChar.TakeDamage(damage))
+        {
+            healthBars.RemoveOne();
+        }
         isInvincible = true;
 
         rb.velocity = Vector3.zero;

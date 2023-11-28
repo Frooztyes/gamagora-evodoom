@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1e97c10707778a44bf78dc9f08274f6, type: 3}
   m_Name: Cyborg
   m_EditorClassIdentifier: 
-  MaxHealth: 5
-  Health: 5
+  MaxHealth: 4
+  Health: 4
   MoveSpeed: 20
   JumpForce: 80
   InvincibleTime: 2
   IsDead: 0
+  DefaultSheild: 0
   levitationCapacity: 40
   currentLevitationCapacity: 40
   levitationRecoveryPerTick: 1

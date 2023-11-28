@@ -1,14 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.Rendering.DebugUI;
 
 public class VideoHandler : OptionHandlerAb
 {
+    [SerializeField] private SaveSettings saveHandler;
 
     [SerializeField] private List<Vector2> resolutions = new () 
     {
@@ -48,16 +49,27 @@ public class VideoHandler : OptionHandlerAb
     // Start is called before the first frame update
     void Start()
     {
+        Vector2 resolution = saveHandler.sd.resolution;
+        resolutions = resolutions.OrderBy(o => o.x).ToList();
+        SetResolution(resolutions.IndexOf(resolution));
+
         vsyncToggler.onValueChanged.AddListener(SetVSync);
-        SetResolution(0);
-        SetVSync(false);
-        SetScreenMode(2);
-        SetFrameRate(4);
+
+        bool vsync = saveHandler.sd.vsync;
+        SetVSync(vsync);
+
+        FullScreenMode mode = saveHandler.sd.screenmode;
+        SetScreenMode(fullScreenModes.IndexOf(mode));
+
+
+        int framerate = saveHandler.sd.frameRate;
+        SetFrameRate(frameRates.IndexOf(framerate));
     }
 
     private void SetVSync(bool value)
     {
         QualitySettings.vSyncCount = value ? 1 : 0;
+        saveHandler.sd.vsync = value;
     }
 
     public void SetResolution(int offset)
@@ -72,6 +84,7 @@ public class VideoHandler : OptionHandlerAb
             nextIndex = resolutions.Count - 1;
         }
         Screen.SetResolution((int)resolutions[nextIndex].x, (int)resolutions[nextIndex].y, fullScreenModes[currentScreenMode]);
+        saveHandler.sd.resolution = resolutions[nextIndex];
         currentResolution = nextIndex;
         resolutionText.text = $"{(int)resolutions[nextIndex].x}x{(int)resolutions[nextIndex].y}";
     }
@@ -88,8 +101,8 @@ public class VideoHandler : OptionHandlerAb
             nextIndex = fullScreenModes.Count - 1;
         }
         Screen.fullScreenMode = fullScreenModes[nextIndex];
+        saveHandler.sd.screenmode = fullScreenModes[nextIndex];
         currentScreenMode = nextIndex;
-
         screenModeText.text = fullScreenModes[nextIndex] switch
         {
             FullScreenMode.FullScreenWindow => "Fullscreen",
@@ -112,6 +125,7 @@ public class VideoHandler : OptionHandlerAb
         }
 
         Application.targetFrameRate = frameRates[nextIndex];
+        saveHandler.sd.frameRate = frameRates[nextIndex];
         currentFrameRate = nextIndex;
         if (frameRates[nextIndex] == -1)
         {
@@ -151,5 +165,6 @@ public class VideoHandler : OptionHandlerAb
             default:
                 break;
         }
+        saveHandler.PopulateSaveData(saveHandler.sd);
     }
 }
