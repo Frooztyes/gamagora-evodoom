@@ -20,7 +20,6 @@ public class MenuHandler : MonoBehaviour
     [SerializeField] private Image canvasFade;
     [SerializeField] private GameObject options;
 
-
     [SerializeField] private string gameScene;
 
     private Color fullBlack;
@@ -30,6 +29,7 @@ public class MenuHandler : MonoBehaviour
 
     private List<Image> icons;
     private int currentId;
+
     private void Awake()
     {
         Cursor.visible = false;

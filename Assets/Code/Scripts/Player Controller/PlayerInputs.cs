@@ -10,6 +10,8 @@ using static UnityEngine.Rendering.DebugUI;
 [RequireComponent(typeof(MyCharacterController))]
 public class PlayerInputs : MonoBehaviour
 {
+    [SerializeField] private PauseHandler pausePanel;
+
     private CustomInputs input = null;
     private Vector2 moveVector = Vector2.zero;
     private float jumpValue = 0;
@@ -53,6 +55,8 @@ public class PlayerInputs : MonoBehaviour
 
         input.Player.MoveCursor.performed += OnControllerCursorPerformed;
         input.Player.MoveCursor.canceled += OnControllerCursorCanceled;
+
+        input.Player.Pause.performed += OnPausePerformed;
     }
 
     private void OnDisable()
@@ -75,12 +79,22 @@ public class PlayerInputs : MonoBehaviour
 
         input.Player.MoveCursor.performed -= OnControllerCursorPerformed;
         input.Player.MoveCursor.canceled -= OnControllerCursorCanceled;
+
+        input.Player.Pause.performed -= OnPausePerformed;
     }
 
     // Start is called before the first frame update
     void Start() 
     {
         controller = GetComponent<MyCharacterController>();
+    }
+
+    private void OnPausePerformed(InputAction.CallbackContext value)
+    {
+        pausePanel.playerInput = this;
+        pausePanel.gameObject.SetActive(true);
+        this.enabled = false;
+        Time.timeScale = 0;
     }
 
     private void OnMovementPerformed(InputAction.CallbackContext value)

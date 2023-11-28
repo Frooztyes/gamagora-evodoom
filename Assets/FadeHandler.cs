@@ -9,7 +9,7 @@ public class FadeHandler : MonoBehaviour
     public bool IsFading { get; set; }
 
     private float fadeElapsed = 0f;
-    private float fadeDuration;
+    private float fadeDuration = 0.5f;
 
     private Color fromColor;
     private Color toColor;

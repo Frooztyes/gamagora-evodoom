@@ -31,6 +31,7 @@ public class HealthBars : MonoBehaviour
         GameObject bar = Instantiate(sheildBar);
         sheilds.Push(bar);
         bar.transform.SetParent(transform);
+        bar.transform.localScale = Vector3.one;
     }
     public void RemoveSheild()
     {
@@ -78,6 +79,7 @@ public class HealthBars : MonoBehaviour
             GameObject bar = Instantiate(healthBar);
             activeHealthBars.Push(bar);
             bar.transform.SetParent(transform);
+            bar.transform.localScale = Vector3.one;
         }
     }
 }
