@@ -375,15 +375,15 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 653a3df0fab23bf4b82098dd05b02128, type: 3}
   - {fileID: 8300000, guid: 76f73ef6a69653b4fbb63375f3c3fc70, type: 3}
   - {fileID: 8300000, guid: 61f35d167fce9934c935b7e02faeb20c, type: 3}
-  otherSoundsEffect: {fileID: 0}
-  coinSound: {fileID: 0}
-  animator: {fileID: 0}
+  otherSoundsEffect: {fileID: 1941241587571159889}
+  coinSound: {fileID: 8300000, guid: ea68bd3a662e0db4899b45e855623eb4, type: 3}
+  animator: {fileID: 5415164077841043662}
   flashLight: {fileID: 0}
-  reloadIcon: {fileID: 0}
-  HighAmmoColor: {r: 0, g: 0, b: 0, a: 0}
-  MediumAmmoColor: {r: 0, g: 0, b: 0, a: 0}
-  LowAmmoColor: {r: 0, g: 0, b: 0, a: 0}
-  EmptyAmmoColor: {r: 0, g: 0, b: 0, a: 0}
+  reloadIcon: {fileID: 21300000, guid: 10b84724ee3a2324d8a36573ec146d4c, type: 3}
+  HighAmmoColor: {r: 0, g: 1, b: 0.023376703, a: 1}
+  MediumAmmoColor: {r: 1, g: 0.89104825, b: 0, a: 1}
+  LowAmmoColor: {r: 1, g: 0.37254903, b: 0, a: 1}
+  EmptyAmmoColor: {r: 1, g: 0, b: 0, a: 1}
   hasDodge: 0
 --- !u!114 &7292689519996825625
 MonoBehaviour:
@@ -398,6 +398,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pausePanel: {fileID: 0}
+  shipPartsHandler: {fileID: 0}
 --- !u!82 &3214095233759379286
 AudioSource:
   m_ObjectHideFlags: 0
@@ -407,9 +408,9 @@ AudioSource:
   m_GameObject: {fileID: 5178247861706446549}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 873165926989046270, guid: 19118d69a08556047951fbcb1c61915e, type: 2}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -566,7 +567,7 @@ AudioSource:
   m_GameObject: {fileID: 9170582052974323951}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 873165926989046270, guid: 19118d69a08556047951fbcb1c61915e, type: 2}
   m_audioClip: {fileID: 8300000, guid: ea68bd3a662e0db4899b45e855623eb4, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1

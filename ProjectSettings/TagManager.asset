@@ -12,6 +12,9 @@ TagManager:
   - AmmoBar
   - ReloadIcon
   - Cursor
+  - IndicatorCollectible
+  - ShipPart
+  - ShipPartUI
   layers:
   - Default
   - TransparentFX

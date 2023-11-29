@@ -5128,7 +5128,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57b36f87b2bdd36458c590bf6f1e25d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HasFinished: 1
   defDistanceRay: 100
   laserSound: {fileID: 6211856340975398589}
   tickSound: {fileID: 521730641110800678}
@@ -5153,7 +5152,7 @@ AudioSource:
   m_GameObject: {fileID: 8264309850974990702}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 873165926989046270, guid: 19118d69a08556047951fbcb1c61915e, type: 2}
   m_audioClip: {fileID: 8300000, guid: a22cfa6301362e04aaa5b518b17b7ebf, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.5
@@ -5249,7 +5248,7 @@ AudioSource:
   m_GameObject: {fileID: 8264309850974990702}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 873165926989046270, guid: 19118d69a08556047951fbcb1c61915e, type: 2}
   m_audioClip: {fileID: 8300000, guid: af577d10790a2c545a613860c89507dd, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.95

@@ -45,7 +45,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc2dad8b04720724ba0d771ba3ae384d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HasFinished: 1
   projectile: {fileID: 1563950132161701042, guid: f04b9d458986eff4d9e45d4d53fd81f7, type: 3}
   spread: 45
   bulletPerVolley: 5
@@ -61,7 +60,7 @@ AudioSource:
   m_GameObject: {fileID: 1165883099853747923}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 873165926989046270, guid: 19118d69a08556047951fbcb1c61915e, type: 2}
   m_audioClip: {fileID: 8300000, guid: c8ac063d297464d418a3bd3b02744f5d, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.5

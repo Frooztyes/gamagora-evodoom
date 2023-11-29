@@ -11,7 +11,7 @@ public class VideoHandler : OptionHandlerAb
 {
     [SerializeField] private SaveSettings saveHandler;
 
-    [SerializeField] private List<Vector2> resolutions = new () 
+    [SerializeField] private List<Vector2> resolutions = new() 
     {
         new Vector2(1920, 1080),
         new Vector2(1366, 768),

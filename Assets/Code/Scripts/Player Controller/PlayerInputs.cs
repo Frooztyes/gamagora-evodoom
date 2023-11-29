@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using static ShipPartCollectible;
 using static UnityEngine.Rendering.DebugUI;
 
 
@@ -11,6 +13,7 @@ using static UnityEngine.Rendering.DebugUI;
 public class PlayerInputs : MonoBehaviour
 {
     [SerializeField] private PauseHandler pausePanel;
+    [SerializeField] private ShipPartsHandler shipPartsHandler;
 
     private CustomInputs input = null;
     private Vector2 moveVector = Vector2.zero;
@@ -22,11 +25,14 @@ public class PlayerInputs : MonoBehaviour
     private bool shooting;
     private bool dodging;
     private bool reloading;
+    private bool interacting;
 
     private void Awake()
     {
         input = new CustomInputs();
+        interacting = false;
     }
+
     private void FixedUpdate()
     {
         controller.Move(moveVector.x * Time.fixedDeltaTime, moveVector.y > 0 || jumpValue > 0f, shooting, dodging, reloading, cursorAiming);
@@ -56,6 +62,9 @@ public class PlayerInputs : MonoBehaviour
         input.Player.MoveCursor.performed += OnControllerCursorPerformed;
         input.Player.MoveCursor.canceled += OnControllerCursorCanceled;
 
+        input.Player.Interact.performed += OnInteractPerformed;
+        input.Player.Interact.canceled += OnInteractCanceled;
+
         input.Player.Pause.performed += OnPausePerformed;
     }
 
@@ -80,6 +89,9 @@ public class PlayerInputs : MonoBehaviour
         input.Player.MoveCursor.performed -= OnControllerCursorPerformed;
         input.Player.MoveCursor.canceled -= OnControllerCursorCanceled;
 
+        input.Player.Interact.performed -= OnInteractPerformed;
+        input.Player.Interact.canceled -= OnInteractCanceled;
+
         input.Player.Pause.performed -= OnPausePerformed;
     }
 
@@ -87,6 +99,16 @@ public class PlayerInputs : MonoBehaviour
     void Start() 
     {
         controller = GetComponent<MyCharacterController>();
+    }
+
+    private void OnInteractPerformed(InputAction.CallbackContext value)
+    {
+        interacting = value.ReadValue<float>() > 0;
+    }
+
+    private void OnInteractCanceled(InputAction.CallbackContext value)
+    {
+        interacting = false;
     }
 
     private void OnPausePerformed(InputAction.CallbackContext value)
@@ -119,7 +141,7 @@ public class PlayerInputs : MonoBehaviour
 
     private void OnShootPerformed(InputAction.CallbackContext value)
     {
-        shooting = (value.ReadValue<float>() > 0 ? true : false);
+        shooting = value.ReadValue<float>() > 0;
     }
 
     private void OnShootCanceled(InputAction.CallbackContext value)
@@ -129,7 +151,7 @@ public class PlayerInputs : MonoBehaviour
 
     private void OnDodgePerformed(InputAction.CallbackContext value)
     {
-        dodging = (value.ReadValue<float>() > 0 ? true : false);
+        dodging = value.ReadValue<float>() > 0;
     }
 
     private void OnDodgeCanceled(InputAction.CallbackContext value)
@@ -139,7 +161,7 @@ public class PlayerInputs : MonoBehaviour
 
     private void OnReloadingPerformed(InputAction.CallbackContext value)
     {
-        reloading = (value.ReadValue<float>() > 0 ? true : false);
+        reloading = value.ReadValue<float>() > 0;
     }
 
     private void OnReloadingCanceled(InputAction.CallbackContext value)
@@ -155,6 +177,32 @@ public class PlayerInputs : MonoBehaviour
     private void OnControllerCursorCanceled(InputAction.CallbackContext value)
     {
         cursorAiming = Vector2.zero;
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if(collision.gameObject.CompareTag("ShipPart") && interacting)
+        {
+            ShipPartCollectible spc = collision.GetComponent<ShipPartCollectible>();
+            switch (spc.shipPart)
+            {
+                case ShipPart.ROCKET_LAUNCHERS:
+                    shipPartsHandler.SetRocketPanel(true);
+                    break;
+                case ShipPart.COCKPIT:
+                    shipPartsHandler.SetCockpit(true);
+                    break;
+                case ShipPart.LEFT_WING:
+                    shipPartsHandler.SetLeftWing(true);
+                    break;
+                case ShipPart.RIGHT_WING:
+                    shipPartsHandler.SetRightWing(true);
+                    break;
+                default:
+                    break;
+            }
+            Destroy(collision.gameObject);
+        }
     }
 
 }
