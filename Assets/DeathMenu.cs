@@ -17,18 +17,13 @@ public class DeathMenu : MonoBehaviour
     [SerializeField] private GameObject ennemyBlock;
     [SerializeField] private GameObject ennemiesBlock;
 
-    // Start is called before the first frame update
-    void Start()
+    public void DequeueEnnemies(Queue<Ennemy.AttackType> queueEnnemies)
     {
-        AddEnnemyToObjects(Ennemy.AttackType.LASER);
-        AddEnnemyToObjects(Ennemy.AttackType.VOLLEY);
-        AddEnnemyToObjects(Ennemy.AttackType.MELEE);
-        AddEnnemyToObjects(Ennemy.AttackType.LASER);
-        AddEnnemyToObjects(Ennemy.AttackType.MELEE);
-        AddEnnemyToObjects(Ennemy.AttackType.LASER);
-        AddEnnemyToObjects(Ennemy.AttackType.LASER);
-        AddEnnemyToObjects(Ennemy.AttackType.MELEE);
-
+        while (queueEnnemies.Count > 0)
+        {
+            Ennemy.AttackType ennemy = queueEnnemies.Dequeue();
+            AddEnnemyToObjects(ennemy);
+        }
     }
 
     void AddEnnemyToObjects(Ennemy.AttackType ennemyType)
@@ -41,19 +36,13 @@ public class DeathMenu : MonoBehaviour
                 se = ennemies[i];
             }
         }
+
         if (se is SpriteEnnemy s)
         {
-            GameObject newEnnemy = Instantiate(ennemyBlock, transform.position, Quaternion.identity);
-            newEnnemy.GetComponent<Image>().sprite = s.image;
+            Image newEnnemy = Instantiate(ennemyBlock, transform.position, Quaternion.identity).GetComponent<Image>();
+            newEnnemy.sprite = s.image;
             newEnnemy.transform.SetParent(ennemiesBlock.transform);
-
+            newEnnemy.transform.localScale = ennemyBlock.transform.localScale;
         }
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

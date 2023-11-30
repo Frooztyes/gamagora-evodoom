@@ -32,6 +32,7 @@ public class HomingMissile : MonoBehaviour
 
         direction.Normalize();
 
+        // rotate toward direction but without going straight onto it
         float rotateAmount = Vector3.Cross(direction, transform.up).z;
 
         rb.angularVelocity = -rotateAmount * rotateSpeed;
@@ -45,12 +46,14 @@ public class HomingMissile : MonoBehaviour
         string layer = LayerMask.LayerToName(collision.gameObject.layer);
         if (layer == "Player")
         {
+            // deal damage to player if rocket colliding with
             collision.gameObject.GetComponent<MyCharacterController>().TakeDamage(collision.transform.position.x < transform.position.x);
             Instantiate(explosionEffect, transform.position, transform.rotation);
             Destroy(gameObject);
         }
         if (layer == "Ground")
         {
+            // create an explosion that damages ennemies and player if rocket explodes on the floor
             var hitColliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius, 1 << LayerMask.NameToLayer("Player") | 1 << LayerMask.NameToLayer("Ennemy"));
             foreach(Collider2D i in hitColliders)
             {

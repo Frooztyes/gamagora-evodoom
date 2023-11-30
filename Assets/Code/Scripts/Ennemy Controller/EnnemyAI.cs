@@ -67,6 +67,8 @@ public class EnnemyAI : MonoBehaviour
     private SpriteRenderer sprite;
     private float defaultRotation;
 
+    private GameHandler gameHandler;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -104,6 +106,8 @@ public class EnnemyAI : MonoBehaviour
         {
             target = GameObject.FindGameObjectWithTag("Player").transform;
         }
+
+        gameHandler = GameObject.FindGameObjectWithTag("GameHandler").GetComponent<GameHandler>();
 
         // Update A* path every .5 seconds
         InvokeRepeating(nameof(UpdatePath), 0f, .5f);
@@ -196,6 +200,7 @@ public class EnnemyAI : MonoBehaviour
     {
         animator.SetBool("IsShooting", false);
     }
+
     void TickRunState()
     {
         if (path == null) return;
@@ -356,6 +361,7 @@ public class EnnemyAI : MonoBehaviour
         animator.SetBool("IsDead", true);
         InvokeRepeating(nameof(ExplosionDeath), 0f, 0.2f);
         InvokeRepeating(nameof(RemoveGameObject), 1f, 0.5f);
+        gameHandler.EnnemiesKilled.Enqueue(editableEnnemy.AttackPattern);
     }
 
     private void ExplosionDeath()

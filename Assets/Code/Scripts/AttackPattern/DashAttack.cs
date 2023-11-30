@@ -81,6 +81,7 @@ public class DashAttack : AttackPattern
         rb.velocity = finalVelocity;
     }
 
+    // check if a sprite collides with an other
     private bool SpriteCollides(GameObject go)
     {
         SpriteRenderer r1 = go.GetComponent<SpriteRenderer>();
@@ -91,18 +92,6 @@ public class DashAttack : AttackPattern
 
         Rect rec1 = new Rect(go.transform.position.x - (r1Size.x / 2), go.transform.position.y - (r1Size.y/2), r1Size.x, r1Size.y);
         Rect rec2 = new Rect(transform.position.x - (r2Size.x / 2), transform.position.y, r2Size.x, r2Size.y);
-
-
-        Debug.DrawLine(new Vector3(rec1.x, rec1.y), new Vector3(rec1.x + rec1.width, rec1.y), Color.green);
-        Debug.DrawLine(new Vector3(rec1.x, rec1.y), new Vector3(rec1.x, rec1.y + rec1.height), Color.red);
-        Debug.DrawLine(new Vector3(rec1.x + rec1.width, rec1.y + rec1.height), new Vector3(rec1.x + rec1.width, rec1.y), Color.green);
-        Debug.DrawLine(new Vector3(rec1.x + rec1.width, rec1.y + rec1.height), new Vector3(rec1.x, rec1.y + rec1.height), Color.red);
-
-        Debug.DrawLine(new Vector3(rec2.x, rec2.y), new Vector3(rec2.x + rec2.width, rec2.y), Color.blue);
-        Debug.DrawLine(new Vector3(rec2.x, rec2.y), new Vector3(rec2.x, rec2.y + rec2.height), Color.yellow);
-        Debug.DrawLine(new Vector3(rec2.x + rec2.width, rec2.y + rec2.height), new Vector3(rec2.x + rec2.width, rec2.y), Color.blue);
-        Debug.DrawLine(new Vector3(rec2.x + rec2.width, rec2.y + rec2.height), new Vector3(rec2.x, rec2.y + rec2.height), Color.yellow);
-
         return rec1.Overlaps(rec2);
     }
 
@@ -110,10 +99,12 @@ public class DashAttack : AttackPattern
     // Update is called once per frame
     void Update()
     {
+        // if ennemy collides with player, change attack animation and deal damage to player
         if(SpriteCollides(player.gameObject))
         {
             player.GetComponent<MyCharacterController>().TakeDamage(player.transform.position.x < transform.position.x);
             animator.SetInteger("AttackAnimation", 2);
+            // change animation after swipe attack animation is finished
             if (animator.GetCurrentAnimatorStateInfo(0).IsName("PowerImp_attack2")
                 && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1
                 && !animator.IsInTransition(0))
@@ -139,26 +130,13 @@ public class DashAttack : AttackPattern
             hasFinished = false;
             SetTrajectory(player.position, 40);
         }
-
-        Debug.Log(player.GetComponent<SpriteRenderer>().bounds.Contains(transform.position));
-
-
-
-        //if(isRunning)
-        //{
-        //    HasFinished = false;
-        //}
-        //if(!isRunning && !HasFinished)
-        //{
-        //    animator.SetInteger("AttackAnimation", 2);
-        //    
-        //}
     }
 
     private void Reload()
     {
         isReloading = false;
     }
+
     public bool IsReloading() { return isReloading; }
 
 

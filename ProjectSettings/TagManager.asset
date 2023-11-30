@@ -15,6 +15,7 @@ TagManager:
   - IndicatorCollectible
   - ShipPart
   - ShipPartUI
+  - GameHandler
   layers:
   - Default
   - TransparentFX

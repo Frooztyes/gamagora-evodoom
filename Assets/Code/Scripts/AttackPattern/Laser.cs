@@ -99,6 +99,7 @@ public class Laser : AttackPattern
             angle = transform.localRotation.eulerAngles.z;
         }
 
+        // stop laser when it exceeds max angle
         if (angle >= endingAndle)
         {
             inReset = true;
@@ -109,6 +110,7 @@ public class Laser : AttackPattern
             return;
         }
 
+        // rotate laser along an arc 
         currentSpeed = (endingAndle-startingAngle) * 2.0f * Time.deltaTime;
         transform.Rotate(new Vector3 (0, 0, currentSpeed));
         ShootLaser(true);
@@ -132,6 +134,7 @@ public class Laser : AttackPattern
         stackTime += Time.deltaTime;
         if (stackTime >= 0.04)
         {
+            // rotate laser indicator along an arc 
             transform.Rotate(Vector3.forward * 5);
             tickSound.Play();
             tickSound.pitch += 0.05f;
