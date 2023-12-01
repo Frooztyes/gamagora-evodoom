@@ -125,8 +125,7 @@ GameObject:
   - component: {fileID: 2469313100241923917}
   - component: {fileID: 5415164077841043662}
   - component: {fileID: 4103388212275409026}
-  - component: {fileID: 6904780476966089686}
-  - component: {fileID: 1479574495768630361}
+  - component: {fileID: 295454013822352472}
   - component: {fileID: 7329199781998596157}
   - component: {fileID: 7292689519996825625}
   - component: {fileID: 3214095233759379286}
@@ -256,53 +255,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!61 &6904780476966089686
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5178247861706446549}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: 969facdfeea75fa43bbfa6d009a08cf3, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.028886981}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.19, y: 0.35}
-    newSize: {x: 0.19, y: 0.35}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.14364302, y: 0.2564757}
-  m_EdgeRadius: 0
---- !u!58 &1479574495768630361
-CircleCollider2D:
+--- !u!70 &295454013822352472
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -333,9 +287,9 @@ CircleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.09386771}
-  serializedVersion: 2
-  m_Radius: 0.066027574
+  m_Offset: {x: 0.011260351, y: -0.0015218258}
+  m_Size: {x: 0.13339488, y: 0.34695643}
+  m_Direction: 0
 --- !u!114 &7329199781998596157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -384,6 +338,7 @@ MonoBehaviour:
   MediumAmmoColor: {r: 1, g: 0.89104825, b: 0, a: 1}
   LowAmmoColor: {r: 1, g: 0.37254903, b: 0, a: 1}
   EmptyAmmoColor: {r: 1, g: 0, b: 0, a: 1}
+  slopeCheckDistance: 2.8
   hasDodge: 0
 --- !u!114 &7292689519996825625
 MonoBehaviour:

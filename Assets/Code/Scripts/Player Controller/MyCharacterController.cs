@@ -35,6 +35,7 @@ public class MyCharacterController : MonoBehaviour
     [SerializeField] private Color MediumAmmoColor;
     [SerializeField] private Color LowAmmoColor;
     [SerializeField] private Color EmptyAmmoColor;
+
     private Sprite gunIcon;
 
     public Character editableChar { get; private set; }
@@ -42,6 +43,17 @@ public class MyCharacterController : MonoBehaviour
     private AudioSource characterAudioSource;
 
     private Rigidbody2D rb;
+
+
+    // Slope Handling
+    private CapsuleCollider2D collider;
+    private Vector2 colliderSize;
+    [SerializeField] private float slopeCheckDistance;
+    private float slopeDownAngle;
+    private Vector2 slopeNormalPerp;
+    private bool isOnSlope;
+    private float slopeDownAngleOld;
+
     private bool defaultFacing;
     private bool isGrounded;
     private Quaternion qTo;
@@ -70,19 +82,30 @@ public class MyCharacterController : MonoBehaviour
     void Start()
     {
         Cursor.visible = false;
+
+        collider = GetComponent<CapsuleCollider2D>();
         sprite = GetComponent<SpriteRenderer>();
+        rb = GetComponent<Rigidbody2D>();
+        characterAudioSource = GetComponent<AudioSource>();
+
+        // Slopes handling
+        colliderSize = collider.size;
+
         editableChar = Instantiate(character);
         editableGun = Instantiate(gun);
+
         gunGFX = Instantiate(editableGun.GFX, gunPosition.position, Quaternion.identity).transform;
         gunGFX.transform.parent = gunPosition;
         gunGFX.localScale = Vector3.one * editableGun.Scale;
         gunAnimation = gunGFX.GetComponent<Animation>();
         gunSounds = gunGFX.GetComponents<AudioSource>();
+
         qTo = gunGFX.transform.rotation;
+
         defaultFacing = transform.localScale.x > 0;
-        rb = GetComponent<Rigidbody2D>();
         isGrounded = false;
 
+        // getting HUD components
         levitationIndicator = GameObject.FindGameObjectWithTag("LevitationBar").GetComponent<Image>();
         healthBars = GameObject.FindGameObjectWithTag("HealthBar").GetComponent<HealthBars>();
         dodgeIndicator = GameObject.FindGameObjectWithTag("DodgeBar").GetComponent<Image>();
@@ -93,6 +116,7 @@ public class MyCharacterController : MonoBehaviour
         cursor = GameObject.FindGameObjectWithTag("Cursor").GetComponent<Transform>();
 
         gunIcon = reloadUI.sprite;
+
         healthBars.SetHealth(editableChar.Health);
         for (int i = 0; i < editableChar.DefaultSheild; i++)
         {
@@ -104,14 +128,49 @@ public class MyCharacterController : MonoBehaviour
 
         cooldownDashInternal = editableChar.cooldownDash;
         editableChar.currentLevitationCapacity = editableChar.levitationCapacity;
-
-        characterAudioSource = GetComponent<AudioSource>();
     }
 
+    private void SlopeCheck()
+    {
+        Vector2 checkPosition = transform.position - new Vector3(0, colliderSize.y / 2);
+
+        SlopeCheckVertical(checkPosition);
+
+    }
+
+    private void SlopeCheckHorizontal(Vector2 checkPosition)
+    {
+
+    }
+
+    private void SlopeCheckVertical(Vector2 checkPosition)
+    {
+        RaycastHit2D hit = Physics2D.Raycast(checkPosition, Vector2.down, slopeCheckDistance, ground);
+        if(hit)
+        {
+            slopeNormalPerp = Vector2.Perpendicular(hit.normal);
+
+            slopeDownAngle = Vector2.Angle(hit.normal, Vector2.up);
+
+            if(slopeDownAngle != slopeDownAngleOld)
+            {
+                isOnSlope = true;
+            }
+
+            slopeDownAngleOld = slopeDownAngle;
+
+            Debug.DrawRay(hit.point, slopeNormalPerp, Color.red);
+
+            Debug.DrawRay(hit.point, hit.normal, Color.green);
+        }
+    }
+
+#if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
         Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
     }
+#endif
 
     public bool IsGrounded()
     {
@@ -164,6 +223,7 @@ public class MyCharacterController : MonoBehaviour
         float angle = AngleBetweenTwoPoints(positionOnScreen, mouseOnScreen);
 
         //flashLight.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle + 90f));
+        SlopeCheck();
     }
 
     private bool isReloading = false;
@@ -252,6 +312,18 @@ public class MyCharacterController : MonoBehaviour
         transform.Translate(Vector3.right * amount);
         // jump force
         rb.AddForce(Vector2.up * editableChar.GetJumpForce(flying));
+        if(isGrounded && !isOnSlope)
+        {
+
+        } 
+        else if(isGrounded && isOnSlope)
+        {
+
+        } 
+        else if(!isGrounded)
+        {
+
+        }
 
         if(reloading && !isReloading)
         {
