@@ -4,6 +4,10 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
+/// <summary>
+/// This character controller implements any movement, behaviour and statistics for the player
+/// It also updates HUD by changing bars and icons
+/// </summary>
 public class MyCharacterController : MonoBehaviour
 {
     [SerializeField] private Character character;
@@ -43,14 +47,6 @@ public class MyCharacterController : MonoBehaviour
 
 
     // Slope Handling
-    private CapsuleCollider2D myCollider;
-    private Vector2 colliderSize;
-    [SerializeField] private float slopeCheckDistance;
-    private float slopeDownAngle;
-    private Vector2 slopeNormalPerp;
-    private bool isOnSlope;
-    private float slopeDownAngleOld;
-    private float slopeSizeAngle;
     [SerializeField] private PhysicsMaterial2D noFriction;
     [SerializeField] private PhysicsMaterial2D fullFriction;
 
@@ -81,20 +77,16 @@ public class MyCharacterController : MonoBehaviour
 
     void Start()
     {
-        //if(Input.GetJoystickNames().Length > 0)
-        //    Cursor.visible = false;
-
-        myCollider = GetComponent<CapsuleCollider2D>();
         sprite = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         characterAudioSource = GetComponent<AudioSource>();
 
-        // Slopes handling
-        colliderSize = myCollider.size;
 
+        // setting up scriptable object
         EditableChar = Instantiate(character);
         editableGun = Instantiate(gun);
 
+        // setting up gun 
         gunGFX = Instantiate(editableGun.GFX, gunPosition.position, Quaternion.identity).transform;
         gunGFX.transform.parent = gunPosition;
         gunGFX.localScale = Vector3.one * editableGun.Scale;
@@ -118,78 +110,20 @@ public class MyCharacterController : MonoBehaviour
 
         gunIcon = reloadUI.sprite;
 
+        // setting up HP and Sheild bars
         healthBars.SetHealth(EditableChar.Health);
         for (int i = 0; i < EditableChar.DefaultSheild; i++)
         {
             healthBars.AddSheild();
         }
 
+        // setting up Ammo HUD elements
         currentAmmo.text = editableGun.MagazineCapacity.ToString();
         maxAmmo.text = editableGun.MaxMagazineCapacity.ToString();
 
+        // setting up default values for the player
         cooldownDashInternal = EditableChar.cooldownDash;
         EditableChar.currentLevitationCapacity = EditableChar.levitationCapacity;
-    }
-
-    private void SlopeCheck()
-    {
-        Vector2 checkPosition = transform.position - new Vector3(0, colliderSize.y / 2);
-        SlopeCheckHorizontal(checkPosition);
-        SlopeCheckVertical(checkPosition);
-
-    }
-
-    private void SlopeCheckHorizontal(Vector2 checkPosition)
-    {
-        RaycastHit2D slopeHitFront = Physics2D.Raycast(checkPosition, transform.right, slopeCheckDistance, ground);
-        RaycastHit2D slopeHitBack = Physics2D.Raycast(checkPosition, -transform.right, slopeCheckDistance, ground);
-
-        if(slopeHitFront)
-        {
-            isOnSlope = true;
-            slopeSizeAngle = Vector2.Angle(slopeHitFront.normal, Vector2.up);
-        } 
-        else if(slopeHitBack)
-        {
-            isOnSlope = true;
-            slopeSizeAngle = Vector2.Angle(slopeHitBack.normal, Vector2.up);
-        }
-        else
-        {
-            slopeSizeAngle = 0.0f;
-            isOnSlope = false;
-        }
-    }
-
-    private void SlopeCheckVertical(Vector2 checkPosition)
-    {
-        RaycastHit2D hit = Physics2D.Raycast(checkPosition, Vector2.down, slopeCheckDistance, ground);
-        if(hit)
-        {
-            slopeNormalPerp = Vector2.Perpendicular(hit.normal).normalized;
-
-            slopeDownAngle = Vector2.Angle(hit.normal, Vector2.up);
-
-            if(slopeDownAngle != slopeDownAngleOld)
-            {
-                isOnSlope = true;
-            }
-
-            slopeDownAngleOld = slopeDownAngle;
-
-            Debug.DrawRay(hit.point, slopeNormalPerp, Color.red);
-
-            Debug.DrawRay(hit.point, hit.normal, Color.green);
-        }
-
-        if(isOnSlope && locAmount == 0.0f) 
-        {
-            rb.sharedMaterial = fullFriction;
-        } 
-        else
-        {
-            rb.sharedMaterial = noFriction;
-        } 
     }
 
 #if UNITY_EDITOR
@@ -212,8 +146,9 @@ public class MyCharacterController : MonoBehaviour
         {
             return;
         }
-        isGrounded = false;
 
+        // check if the player collide with the ground
+        isGrounded = false;
         Collider2D[] colliders = Physics2D.OverlapCircleAll(groundChecker.position, 0.5f, ground);
         foreach (Collider2D col in  colliders)
         {
@@ -224,8 +159,10 @@ public class MyCharacterController : MonoBehaviour
             }
         }
 
+        // rotate gun toward his shoot position
         if(gunGFX)
             gunGFX.transform.rotation = Quaternion.Slerp(gunGFX.transform.rotation, qTo, Time.fixedDeltaTime * editableGun.RotationSpeed);
+        
         if (!gunAnimation.isPlaying && isReloading)
         {
             reloadUI.transform.rotation = Quaternion.Euler(Vector3.zero);
@@ -234,21 +171,22 @@ public class MyCharacterController : MonoBehaviour
             ammoBar.color = HighAmmoColor;
             isReloading = false;
         }
+
         if(editableGun.MagazineCapacity == 0)
         {
             reloadUI.transform.Rotate(Vector3.forward * 10);
         }
 
+        // stop the stun effect when the player is on ground
         if(isGrounded && isStunned)
         {
             isStunned = false;
         }
-
-        //SlopeCheck();
     }
 
     private bool isReloading = false;
 
+    // changing the walk sound by picking randomly in the list
     void PlayRandomWalkingSound()
     {
         int randomIndex = Random.Range(0, walkingSounds.Count);
@@ -256,6 +194,7 @@ public class MyCharacterController : MonoBehaviour
         characterAudioSource.Play();
     }
 
+    // check if the current animation in animator is finished
     private bool IsAnimationFinished(string animationName)
     {
         return animator.GetCurrentAnimatorStateInfo(0).IsName(animationName)
@@ -274,6 +213,7 @@ public class MyCharacterController : MonoBehaviour
 
     public bool hasDodge = false;
     private float locAmount;
+
     public void Move(float amount, bool flying, bool shooting, bool dodge, bool reloading, Vector2 cursorAiming)
     {
         if (EditableChar.IsDead)
@@ -289,6 +229,7 @@ public class MyCharacterController : MonoBehaviour
         if (cooldownDashInternal <= EditableChar.cooldownDash)
             cooldownDashInternal += Time.fixedDeltaTime;
 
+        // stop player if dash animation is finished
         if (IsAnimationFinished("Cyborg_dash"))
         {
             animator.SetBool("IsDodging", false);
@@ -298,12 +239,11 @@ public class MyCharacterController : MonoBehaviour
 
         UpdateBars();
 
+        // move cursor position
         SetCursorPosition(cursorAiming);
 
-        // can't do any action if stunned or dodging
+        // can't do any action if stunned or dodging (dashing)
         if (isStunned || hasDodge) return;
-
-
 
         animator.SetFloat("Speed", Mathf.Abs(amount));
 
@@ -340,42 +280,21 @@ public class MyCharacterController : MonoBehaviour
         rb.velocity = new Vector2(amount * EditableChar.MoveSpeed, rb.velocity.y);
         // jump force
         rb.AddForce(Vector2.up * EditableChar.GetJumpForce(flying));
-        //if(isGrounded && !isOnSlope)
-        //{
-        //    rb.velocity = new Vector2(amount * EditableChar.MoveSpeed, rb.velocity.y);
-        //} 
-        //else if(isGrounded && isOnSlope)
-        //{
-        //    rb.velocity = new Vector2(
-        //        -amount * slopeNormalPerp.x * EditableChar.MoveSpeed,
-        //        -amount * slopeNormalPerp.y * EditableChar.MoveSpeed
-        //        );
-        //} 
-        //else if(!isGrounded)
-        //{
-        //    rb.velocity = new Vector2(amount * EditableChar.MoveSpeed, rb.velocity.y);
-        //}
 
-        if(reloading && !isReloading)
+        if (reloading && !isReloading)
         {
             isReloading = true;
             reloadUI.sprite = reloadIcon;
             gunAnimation.Play();
         }
-
-        if ((!isGrounded || isFlying) && !shooting)
-        {
-            //gunGFX.position = gunPosition.position;
-        }
-
     }
+
     private Vector2 cursorDir;
     private readonly float desiredRot;
+
     private void SetCursorPosition(Vector2 position)
     {
         var desiredRotQ = Quaternion.Euler(Vector3.forward * Vector2.SignedAngle(Vector2.right, cursorDir));
-        var desiredRotQFlashLight = Quaternion.Euler(Vector3.forward * (Vector2.SignedAngle(Vector2.right, cursorDir) - 90));
-        //flashLight.rotation = Quaternion.Lerp(flashLight.rotation, desiredRotQFlashLight, Time.deltaTime * 20);
         cursor.transform.rotation = Quaternion.Lerp(cursor.transform.rotation, desiredRotQ, Time.deltaTime * 20);
         cursor.transform.GetChild(0).localRotation = Quaternion.Euler(cursor.transform.rotation.eulerAngles.z * -Vector3.forward);
         cursor.transform.position = gunGFX.GetChild(0).position;
@@ -394,8 +313,6 @@ public class MyCharacterController : MonoBehaviour
             position.y *= -1;
         }
 
-
-        //cursor.transform.GetChild(0).localRotation = Quaternion.Euler(-Vector3.forward * Vector2.SignedAngle(Vector2.right, position));
         cursor.gameObject.SetActive(true);
         cursorDir = position;
     }
@@ -403,6 +320,7 @@ public class MyCharacterController : MonoBehaviour
     public void TakeDamage(bool fromRight, int damage = 1)
     {
         if (isInvincible || EditableChar.IsDead) return;
+
         if(!EditableChar.TakeDamage(damage))
         {
             healthBars.RemoveOne();
@@ -422,10 +340,13 @@ public class MyCharacterController : MonoBehaviour
         } 
         else
         {
+            // add an up knockback if player is on ground
             rb.AddForce(Vector2.up * 500);
         }
+        // add an knockback from the direction where the player takes damage
         rb.AddForce((fromRight ? Vector3.left : Vector3.right) * 200);
 
+        // make the player blink in a red effect, ending when invicible time is over
         InvokeRepeating(nameof(BlinkRed), 0, 0.2f);
         Invoke(nameof(EndInvincibleFrame), EditableChar.InvincibleTime);
 
@@ -442,9 +363,14 @@ public class MyCharacterController : MonoBehaviour
     {
         CancelInvoke(nameof(BlinkRed));
         isInvincible = false;
+        // set player to default color
         if(IsRed) BlinkRed();
     }
 
+    /// <summary>
+    /// Transform mouse position to world position
+    /// </summary>
+    /// <returns>mouse position in world context</returns>
     private Vector3 GetMousePosition()
     {
         Vector3 screenPosDepth = Input.mousePosition;
@@ -454,6 +380,7 @@ public class MyCharacterController : MonoBehaviour
         );
         return Camera.main.ScreenToWorldPoint(screenPosDepth);
     }
+
     float AngleBetweenTwoPoints(Vector3 a, Vector3 b)
     {
         return Mathf.Atan2(a.y - b.y, a.x - b.x) * Mathf.Rad2Deg;
@@ -470,6 +397,7 @@ public class MyCharacterController : MonoBehaviour
         }
 
         Vector2 dir = cursorDir;
+        // flip player if they shoots in an opposite direction where they faces
         if (dir.x < 0 && defaultFacing || dir.x >= 0 && !defaultFacing)
             FlipCharacter();
 
@@ -485,6 +413,7 @@ public class MyCharacterController : MonoBehaviour
             isReloading = true;
         }
 
+        // change ammo color depending of current capacity
         float percentMagazine = (float)editableGun.MagazineCapacity / editableGun.MaxMagazineCapacity;
         if(percentMagazine == 0)
         {
@@ -511,6 +440,7 @@ public class MyCharacterController : MonoBehaviour
         int layer = collision.gameObject.layer;
         if (layer == LayerMask.NameToLayer("Ennemy"))
         {
+            // take damage if you touch any enemmy
             TakeDamage(collision.transform.position.x > transform.position.x);
         }
     }
@@ -520,6 +450,7 @@ public class MyCharacterController : MonoBehaviour
         int layer = collision.gameObject.layer;
         if (layer == LayerMask.NameToLayer("Collectible") && !EditableChar.IsDead)
         {
+            // loot coins if player touch them
             if (collision.gameObject.CompareTag("Coin"))
             {
                 otherSoundsEffect.clip = coinSound;

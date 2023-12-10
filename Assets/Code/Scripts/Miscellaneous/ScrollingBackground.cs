@@ -7,7 +7,8 @@ public class ScrollingBackground : MonoBehaviour
     private Vector2 length;
     private Vector2 startPos;
     [SerializeField] private float speed = 10f;
-    [SerializeField] public Vector2 dir = Vector2.left;
+    public Vector2 dir = Vector2.left;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -18,8 +19,10 @@ public class ScrollingBackground : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(dir * Time.deltaTime * speed);
+        transform.Translate(speed * Time.deltaTime * dir);
 
+        // Move the gameobject to its initial position if it exceeds the size it must not exceed.
+        // Provides an "infinite background" effect.
         if (transform.position.x < startPos.x - length.x)
         {
             transform.position = new Vector3(startPos.x, transform.position.y, transform.position.z);

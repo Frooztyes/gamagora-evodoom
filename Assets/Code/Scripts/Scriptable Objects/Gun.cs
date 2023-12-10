@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ScriptableObject representing player's weapon
+/// </summary>
 [CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/Gun", order = 1)]
 public class Gun : ScriptableObject
 {

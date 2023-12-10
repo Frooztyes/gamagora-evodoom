@@ -65,7 +65,7 @@ public class CinematicShip : MonoBehaviour
     }
 
     private float rotateElapsed = 0f;
-    private float rotateDuration = 0.01f;
+    private readonly float rotateDuration = 0.01f;
 
     private float moveToElapsed = 0f;
     private float moveToTime = 0f;
@@ -80,6 +80,7 @@ public class CinematicShip : MonoBehaviour
         {
             if (!isAtRotation)
             {
+                // move ship to be look toward end position
                 float angle = Mathf.Atan2(endingPosition.position.y - startingPosition.position.y, endingPosition.position.x - startingPosition.position.x) * Mathf.Rad2Deg;
                 Quaternion targetRotation = Quaternion.Euler(new Vector3(0, 0, angle - 90));
                 if (targetRotation == transform.rotation)
@@ -92,17 +93,20 @@ public class CinematicShip : MonoBehaviour
                 return;
             }
 
+            // move ship toward end point
             moveToTime += Time.deltaTime / moveToDuration;
             transform.position = Vector2.Lerp(startingPosition.position, endingPosition.position, curve.Evaluate(moveToTime));
             transform.localScale = Vector2.Lerp(startScale, endScale, curve.Evaluate(moveToTime));
             moveToElapsed += Time.deltaTime;
 
+            // if ship is near end, go to second part of the cinematic
             if (!fadePanel.IsFading && Vector2.Distance(transform.position, startingPosition.position) >= Vector2.Distance(endingPosition.position, startingPosition.position) * percentStartFade)
             {
                 fadePanel.IsFading = true;
                 Invoke(nameof(FadeDelay), 0.4f);
                 heavyHitSound.Play();
                 reinvoke = 5;
+                // create 2 explosions at the end position
                 explosionOffset = endingPosition.position;
                 multiplier = 2;
                 AddExplosion();
@@ -112,6 +116,7 @@ public class CinematicShip : MonoBehaviour
 
         if(cinematicPart == 2)
         {
+            // remove mud sound when it ends
             foreach (AudioSource mudSound in mudSounds.ToList())
             {
                 if (!mudSound.isPlaying)
@@ -128,6 +133,11 @@ public class CinematicShip : MonoBehaviour
         fadePanel.Fade(fadeDuration);
     }
 
+    /// <summary>
+    /// Set up parameters for the second part of the cinematic
+    /// Load in async mode the next scene
+    /// Act as a loading screen
+    /// </summary>
     private void SecondPart()
     {
         loadingIcon.SetActive(true);
@@ -153,12 +163,14 @@ public class CinematicShip : MonoBehaviour
         {
             particle.SetActive(true);
         }
+        // load next scene in a coroutine
         StartCoroutine(LoadSceneAsync());
     }
 
     private void AddMudSound()
     {
         AudioSource mudSound = Instantiate(mudSoundEffect, transform.position, Quaternion.identity).GetComponent<AudioSource>();
+        // random pitch for diversity
         mudSound.pitch = Random.Range(0.8f, 1.2f);
         mudSounds.Add(mudSound);
     }
@@ -176,17 +188,19 @@ public class CinematicShip : MonoBehaviour
         {
             yield return null;
         }
+        // add 3 seconds delay to be sure that the loading is fully done
         yield return new WaitForSeconds(3f);
         yield return new WaitForEndOfFrame();
     }
  
     private void AddExplosion()
     {
-        Vector2 randomPosition = new Vector2(
+        // set an explosion around the ship
+        Vector2 randomPosition = new(
             Random.Range(-shipSize.size.x/2, shipSize.size.x/2),
             Random.Range(-shipSize.size.y/2, 0)
         );
-        randomPosition += (Vector2)explosionOffset;
+        randomPosition += explosionOffset;
         GameObject go = Instantiate(explosionPrefab, randomPosition, Quaternion.identity);
         go.transform.localScale = 50f * multiplier * Vector3.one;
         if(reinvoke > 0)

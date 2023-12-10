@@ -4,9 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
+/// <summary>
+/// ScriptableObject storing statistics of the player like health, dashSpeed and cooldowns
+/// </summary>
 [CreateAssetMenu(fileName = "Data", menuName = "ScriptableObjects/Character", order = 1)]
 public class Character : LivingCreature
 {
+    /// <summary>
+    /// Number of shield bars
+    /// </summary>
     [Header("Sheild")]
     public float DefaultSheild = 0;
 

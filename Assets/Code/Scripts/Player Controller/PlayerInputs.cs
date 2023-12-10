@@ -8,7 +8,9 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using static ShipPartCollectible;
 
-
+/// <summary>
+/// Handle inputs by the player to allow moves, interactions and pause
+/// </summary>
 [RequireComponent(typeof(MyCharacterController))]
 public class PlayerInputs : MonoBehaviour
 {
@@ -195,6 +197,10 @@ public class PlayerInputs : MonoBehaviour
     bool canLeave = false;
     bool isLeaving = false;
 
+    /// <summary>
+    /// Allow player to loot ship part if it triggers with
+    /// </summary>
+    /// <param name="collision"></param>
     private void OnTriggerStay2D(Collider2D collision)
     {
         if(collision.gameObject.CompareTag("ShipPart") && interacting)

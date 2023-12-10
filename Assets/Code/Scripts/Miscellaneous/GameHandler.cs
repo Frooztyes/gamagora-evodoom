@@ -21,6 +21,7 @@ public class GameHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // if the player is dead, start unqueueing enemmy to show death screen
         if(player.EditableChar.IsDead && !deathMenu.IsDequeueing && !deathMenu.gameObject.activeSelf)
         {
             deathMenu.gameObject.SetActive(true);

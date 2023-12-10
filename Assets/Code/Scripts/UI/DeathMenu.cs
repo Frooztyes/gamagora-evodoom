@@ -67,6 +67,7 @@ public class DeathMenu : MonoBehaviour
 
     private void DequeueEnnemy()
     {
+        // dequeue enemmy with a delay
         if (queueEnnemies.Count > 0)
         {
             Ennemy.AttackType ennemy = queueEnnemies.Dequeue();
@@ -75,13 +76,18 @@ public class DeathMenu : MonoBehaviour
         }
         else
         {
-            Debug.Log("Hii2");
+            // make restart indicator active when the queue is empty
             pressRestart.SetActive(true);
             canRestart = true;
         }
 
     }
     int defaultOrder = 100;
+
+    /// <summary>
+    /// Instantiate a sprite on the death screen with an animation
+    /// </summary>
+    /// <param name="ennemyType"></param>
     void AddEnnemyToObjects(Ennemy.AttackType ennemyType)
     {
         SpriteEnnemy? se = null;

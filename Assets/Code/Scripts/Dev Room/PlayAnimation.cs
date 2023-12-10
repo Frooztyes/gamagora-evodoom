@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ONLY FOR TESTING PURPOSES, NOT IN THE ACTUAL GAME
+/// </summary>
 public class PlayAnimation : MonoBehaviour
 {
     public enum AnimTypes

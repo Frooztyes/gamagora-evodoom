@@ -29,14 +29,6 @@ public class EnnemyRadar : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").transform;
 
         rectTransform = GetComponent<RectTransform>();
-        //ennemies = new List<EnnemyPos>();
-        //foreach (GameObject go in GameObject.FindGameObjectsWithTag("Ennemy"))
-        //{
-        //    RectTransform t = Instantiate(ennemy, Vector3.zero, Quaternion.identity).GetComponent<RectTransform>();
-        //    t.transform.parent = transform;
-        //    t.gameObject.SetActive(false);
-        //    ennemies.Add(new EnnemyPos() { ennemyIG = go, ennemyUI = t});
-        //}
 
         NewMax = new Vector2((rectTransform.rect.width / 2) - 10, (rectTransform.rect.height / 2) - 10);
         NewMin = -NewMax;
@@ -57,12 +49,14 @@ public class EnnemyRadar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // scale down the radar, because the scan is from the player so distances are not to scale on the HUD
         Vector2 OldMax = new(player.position.x + radarDistance, player.position.y + radarDistance);
         Vector2 OldMin = new(player.position.x - radarDistance, player.position.y - radarDistance);
         Vector2 OldRange = OldMax - OldMin;
         Vector2 NewRange = NewMax - NewMin;
 
         float previousRotation = (lineTrail.eulerAngles.z % 360) - 180;
+        // rotate the line trail to check object in the direction
         lineTrail.Rotate(lineSpeed * Time.deltaTime * -Vector3.forward);
         float currentRotation = (lineTrail.eulerAngles.z % 360) - 180;
 
@@ -87,6 +81,8 @@ public class EnnemyRadar : MonoBehaviour
             rect.anchoredPosition = GetScaledPosition(raycastHit2D.transform.position, NewRange, OldRange, OldMin);
             rect.localScale = Vector3.one;
             rect.GetComponent<RadarPing>().SetDisappearTimer(180f / lineSpeed);
+
+            // if hit object is a ship part, set the ping to green
             if(raycastHit2D.collider.gameObject.CompareTag("ShipPart"))
             {
                 rect.GetComponent<RadarPing>().color = Color.green;
@@ -94,6 +90,9 @@ public class EnnemyRadar : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Get a scaled position depending of the new and old range
+    /// </summary>
     private Vector2 GetScaledPosition(Vector2 position, Vector2 NewRange, Vector2 OldRange, Vector2 OldMin)
     {
         float x = position.x;

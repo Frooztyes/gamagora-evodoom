@@ -7,8 +7,12 @@ public class ScreenShake : MonoBehaviour
     public bool start = false;
     public bool stop = false;
     public AnimationCurve curve;
-    private float duration = float.PositiveInfinity;
+    private readonly float duration = float.PositiveInfinity;
 
+    /// <summary>
+    /// Move camera on a little offset to simulate a shake
+    /// </summary>
+    /// <returns></returns>
     IEnumerator Shaking()
     {
         Vector3 startPosition = transform.position;
@@ -17,7 +21,6 @@ public class ScreenShake : MonoBehaviour
         {
             if (stop) break;
             elapsedTime += Time.deltaTime;
-            float strength = curve.Evaluate(elapsedTime / duration);
             transform.position = transform.position + Random.insideUnitSphere;
             yield return null;
         }

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+
+/// <summary>
+/// Move ship in up direction and change scene for the end menu
+/// </summary>
 public class LeavePlanet : MonoBehaviour
 {
     CameraFollow cam;

@@ -5,6 +5,9 @@ using System.Net.Sockets;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
+/// <summary>
+/// NOT USED, but can be in the future
+/// </summary>
 public class FloatingAnimation : MonoBehaviour
 {
     Vector3 defaultPosition;

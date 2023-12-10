@@ -3,6 +3,9 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
+/// <summary>
+/// Allow an easy access to file (used for reading user settings)
+/// </summary>
 public static class FileManager
 {
     public static bool WriteToFile(string a_FileName, string a_FileContents)

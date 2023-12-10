@@ -55,6 +55,9 @@ public class VolleyProjectile : AttackPattern
         IsShooting = false;
     }
 
+    /// <summary>
+    /// Shoot a projectile depending of the angle where enemmy is aiming
+    /// </summary>
     void ShootProjectile()
     {
         if (!IsShooting) return;

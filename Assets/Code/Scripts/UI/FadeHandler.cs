@@ -25,6 +25,7 @@ public class FadeHandler : MonoBehaviour
         fadeElapsed = 0;
         IsFading = true;
         fadeDuration = duration;
+        // transparent
         fromColor = new Color(0f, 0f, 0f, 0f);
         toColor = Color.black;
     }
