@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4d49ad6e5e39c7428c227a18d7b70c7, type: 3}
   m_Name: PowerImp
   m_EditorClassIdentifier: 
-  MaxHealth: 5
-  Health: 5
+  MaxHealth: 2
+  Health: 2
   MoveSpeed: 400
   JumpForce: 80
   InvincibleTime: 0.5
   IsDead: 0
   pivotPoint: {x: 0, y: -1}
-  AggroRadius: 40
-  ShootRadius: 20
+  AggroRadius: 20
+  ShootRadius: 15
   ContactDamage: 10
   MinCoinsOnDeath: 2
   MaxCoinsOnDeath: 10

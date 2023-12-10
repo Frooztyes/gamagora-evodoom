@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: 9265dd67f46ca1549becf929008dd1f6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - prefabForegroundTilemap: {fileID: 4093791445975557238, guid: 10e8cffc1e2164644bb68736914fefb4, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

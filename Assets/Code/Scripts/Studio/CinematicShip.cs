@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CinematicShip : MonoBehaviour
@@ -26,6 +27,8 @@ public class CinematicShip : MonoBehaviour
     [SerializeField] AudioSource heavyHitSound;
 
     [Header("Cinematic Part 2")]
+    [SerializeField] GameObject loadingIcon;
+    [SerializeField] GameObject title;
     [SerializeField] Transform mudStartingPosition;
     [SerializeField] GameObject mudSoundEffect;
     [SerializeField] AudioSource alarmSound;
@@ -34,6 +37,7 @@ public class CinematicShip : MonoBehaviour
     [Range(0, 1)]
     [SerializeField] private float percentAddMudSound = 0.8f;
     [SerializeField] private ScrollingBackground mudBackground;
+    [SerializeField] private string gameScene = "MainGame";
 
     private Vector3 startScale;
     private Vector3 endScale;
@@ -56,6 +60,8 @@ public class CinematicShip : MonoBehaviour
         moveToDuration = crashSound.clip.length/1.5f;
         transform.localScale *= startMultiplierScale;
         startScale = transform.localScale;
+        loadingIcon.SetActive(false);
+        title.SetActive(false);
     }
 
     private float rotateElapsed = 0f;
@@ -124,6 +130,8 @@ public class CinematicShip : MonoBehaviour
 
     private void SecondPart()
     {
+        loadingIcon.SetActive(true);
+        title.SetActive(true);
         background.SetActive(false);
         mudBackground.gameObject.SetActive(true);
         cinematicPart = 2;
@@ -145,6 +153,7 @@ public class CinematicShip : MonoBehaviour
         {
             particle.SetActive(true);
         }
+        StartCoroutine(LoadSceneAsync());
     }
 
     private void AddMudSound()
@@ -158,6 +167,19 @@ public class CinematicShip : MonoBehaviour
     int multiplier = 1;
     Vector2 explosionOffset;
 
+
+    IEnumerator LoadSceneAsync()
+    {
+        yield return new WaitForSeconds(3f);
+        AsyncOperation op = SceneManager.LoadSceneAsync(gameScene, LoadSceneMode.Single);
+        while(!op.isDone)
+        {
+            yield return null;
+        }
+        yield return new WaitForSeconds(3f);
+        yield return new WaitForEndOfFrame();
+    }
+ 
     private void AddExplosion()
     {
         Vector2 randomPosition = new Vector2(

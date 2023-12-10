@@ -26,7 +26,7 @@ public class Projectile : MonoBehaviour
         
     }
 
-    public void SetStatistics(Vector2 dir, int damage, int parentLayer)
+    public void SetValues(Vector2 dir, int damage, int parentLayer)
     {
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);

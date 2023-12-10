@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 815909517794453685}
   - component: {fileID: 4852479439979190362}
   - component: {fileID: 5593447518616177124}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: ShipPart_Rocket
   m_TagString: ShipPart
   m_Icon: {fileID: 0}

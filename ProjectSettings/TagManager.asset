@@ -16,6 +16,8 @@ TagManager:
   - ShipPart
   - ShipPartUI
   - GameHandler
+  - IndicatorLeave
+  - HUD
   layers:
   - Default
   - TransparentFX
@@ -28,7 +30,7 @@ TagManager:
   - Ennemy
   - Projectile
   - Collectible
-  - 
+  - ShipPieces
   - 
   - 
   - 

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9265dd67f46ca1549becf929008dd1f6, type: 3}
+  m_Name: Data 9
+  m_EditorClassIdentifier: 
+  prefabGrid: {fileID: 9165489562199153303, guid: ee15b3501dccd4443a0750f984311793, type: 3}
+  xOrigin: 3
+  yOrigin: 0
+  upCompat: 00000000
+  rightCompat: 00000000
+  downCompat: 01000000
+  leftCompat: 00000000
+  monster: {fileID: 8099070967232727417, guid: 32914e3736bce84e482591653a16ef48, type: 3}
+  light: {fileID: 7647261860502700217, guid: 118ec92c47655d03ebfd73d7b089d8b5, type: 3}
+  shipPart: {fileID: 8099070967232727417, guid: 90e4f62da9adf754a82d3f0ddd363668, type: 3}

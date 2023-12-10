@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using static ShipPartCollectible;
-using static UnityEngine.Rendering.DebugUI;
 
 
 [RequireComponent(typeof(MyCharacterController))]
@@ -14,6 +14,7 @@ public class PlayerInputs : MonoBehaviour
 {
     [SerializeField] private PauseHandler pausePanel;
     [SerializeField] private ShipPartsHandler shipPartsHandler;
+    [SerializeField] private GameObject leavePrefab;
 
     private CustomInputs input = null;
     private Vector2 moveVector = Vector2.zero;
@@ -66,8 +67,8 @@ public class PlayerInputs : MonoBehaviour
         input.Player.Interact.canceled += OnInteractCanceled;
 
         input.Player.Pause.performed += OnPausePerformed;
+        input.Player.Leave.performed += OnLeavePerformed;
     }
-
     private void OnDisable()
     {
         input.Disable();
@@ -93,6 +94,7 @@ public class PlayerInputs : MonoBehaviour
         input.Player.Interact.canceled -= OnInteractCanceled;
 
         input.Player.Pause.performed -= OnPausePerformed;
+        input.Player.Leave.performed -= OnLeavePerformed;
     }
 
     // Start is called before the first frame update
@@ -106,6 +108,16 @@ public class PlayerInputs : MonoBehaviour
         interacting = value.ReadValue<float>() > 0;
     }
 
+    private void OnLeavePerformed(InputAction.CallbackContext context)
+    {
+        if (!canLeave || isLeaving) return;
+        isLeaving = true;
+        Instantiate(leavePrefab, transform.position, Quaternion.identity);
+        controller.DeactivateCursor();
+        controller.gameObject.SetActive(false);
+    }
+
+
     private void OnInteractCanceled(InputAction.CallbackContext value)
     {
         interacting = false;
@@ -113,6 +125,7 @@ public class PlayerInputs : MonoBehaviour
 
     private void OnPausePerformed(InputAction.CallbackContext value)
     {
+        if (controller.EditableChar.IsDead) return;
         pausePanel.playerInput = this;
         pausePanel.gameObject.SetActive(true);
         this.enabled = false;
@@ -179,6 +192,9 @@ public class PlayerInputs : MonoBehaviour
         cursorAiming = Vector2.zero;
     }
 
+    bool canLeave = false;
+    bool isLeaving = false;
+
     private void OnTriggerStay2D(Collider2D collision)
     {
         if(collision.gameObject.CompareTag("ShipPart") && interacting)
@@ -187,16 +203,16 @@ public class PlayerInputs : MonoBehaviour
             switch (spc.shipPart)
             {
                 case ShipPart.ROCKET_LAUNCHERS:
-                    shipPartsHandler.SetRocketPanel(true);
+                    canLeave = shipPartsHandler.SetRocketPanel(true);
                     break;
                 case ShipPart.COCKPIT:
-                    shipPartsHandler.SetCockpit(true);
+                    canLeave = shipPartsHandler.SetCockpit(true);
                     break;
                 case ShipPart.LEFT_WING:
-                    shipPartsHandler.SetLeftWing(true);
+                    canLeave = shipPartsHandler.SetLeftWing(true);
                     break;
                 case ShipPart.RIGHT_WING:
-                    shipPartsHandler.SetRightWing(true);
+                    canLeave = shipPartsHandler.SetRightWing(true);
                     break;
                 default:
                     break;

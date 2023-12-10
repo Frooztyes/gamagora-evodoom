@@ -1,10 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 
 public class MyCharacterController : MonoBehaviour
@@ -25,10 +22,10 @@ public class MyCharacterController : MonoBehaviour
     [Header("Sounds")]
     [SerializeField] private List<AudioClip> walkingSounds;
     [SerializeField] private AudioSource otherSoundsEffect;
+    public AudioSource deathSound;
     [SerializeField] private AudioClip coinSound;
 
     [SerializeField] private Animator animator;
-    [SerializeField] private Transform flashLight;
 
     [SerializeField] private Sprite reloadIcon;
     [SerializeField] private Color HighAmmoColor;
@@ -38,7 +35,7 @@ public class MyCharacterController : MonoBehaviour
 
     private Sprite gunIcon;
 
-    public Character editableChar { get; private set; }
+    public Character EditableChar { get; private set; }
     private Gun editableGun;
     private AudioSource characterAudioSource;
 
@@ -46,13 +43,16 @@ public class MyCharacterController : MonoBehaviour
 
 
     // Slope Handling
-    private CapsuleCollider2D collider;
+    private CapsuleCollider2D myCollider;
     private Vector2 colliderSize;
     [SerializeField] private float slopeCheckDistance;
     private float slopeDownAngle;
     private Vector2 slopeNormalPerp;
     private bool isOnSlope;
     private float slopeDownAngleOld;
+    private float slopeSizeAngle;
+    [SerializeField] private PhysicsMaterial2D noFriction;
+    [SerializeField] private PhysicsMaterial2D fullFriction;
 
     private bool defaultFacing;
     private bool isGrounded;
@@ -81,17 +81,18 @@ public class MyCharacterController : MonoBehaviour
 
     void Start()
     {
-        Cursor.visible = false;
+        //if(Input.GetJoystickNames().Length > 0)
+        //    Cursor.visible = false;
 
-        collider = GetComponent<CapsuleCollider2D>();
+        myCollider = GetComponent<CapsuleCollider2D>();
         sprite = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         characterAudioSource = GetComponent<AudioSource>();
 
         // Slopes handling
-        colliderSize = collider.size;
+        colliderSize = myCollider.size;
 
-        editableChar = Instantiate(character);
+        EditableChar = Instantiate(character);
         editableGun = Instantiate(gun);
 
         gunGFX = Instantiate(editableGun.GFX, gunPosition.position, Quaternion.identity).transform;
@@ -117,8 +118,8 @@ public class MyCharacterController : MonoBehaviour
 
         gunIcon = reloadUI.sprite;
 
-        healthBars.SetHealth(editableChar.Health);
-        for (int i = 0; i < editableChar.DefaultSheild; i++)
+        healthBars.SetHealth(EditableChar.Health);
+        for (int i = 0; i < EditableChar.DefaultSheild; i++)
         {
             healthBars.AddSheild();
         }
@@ -126,21 +127,38 @@ public class MyCharacterController : MonoBehaviour
         currentAmmo.text = editableGun.MagazineCapacity.ToString();
         maxAmmo.text = editableGun.MaxMagazineCapacity.ToString();
 
-        cooldownDashInternal = editableChar.cooldownDash;
-        editableChar.currentLevitationCapacity = editableChar.levitationCapacity;
+        cooldownDashInternal = EditableChar.cooldownDash;
+        EditableChar.currentLevitationCapacity = EditableChar.levitationCapacity;
     }
 
     private void SlopeCheck()
     {
         Vector2 checkPosition = transform.position - new Vector3(0, colliderSize.y / 2);
-
+        SlopeCheckHorizontal(checkPosition);
         SlopeCheckVertical(checkPosition);
 
     }
 
     private void SlopeCheckHorizontal(Vector2 checkPosition)
     {
+        RaycastHit2D slopeHitFront = Physics2D.Raycast(checkPosition, transform.right, slopeCheckDistance, ground);
+        RaycastHit2D slopeHitBack = Physics2D.Raycast(checkPosition, -transform.right, slopeCheckDistance, ground);
 
+        if(slopeHitFront)
+        {
+            isOnSlope = true;
+            slopeSizeAngle = Vector2.Angle(slopeHitFront.normal, Vector2.up);
+        } 
+        else if(slopeHitBack)
+        {
+            isOnSlope = true;
+            slopeSizeAngle = Vector2.Angle(slopeHitBack.normal, Vector2.up);
+        }
+        else
+        {
+            slopeSizeAngle = 0.0f;
+            isOnSlope = false;
+        }
     }
 
     private void SlopeCheckVertical(Vector2 checkPosition)
@@ -148,7 +166,7 @@ public class MyCharacterController : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(checkPosition, Vector2.down, slopeCheckDistance, ground);
         if(hit)
         {
-            slopeNormalPerp = Vector2.Perpendicular(hit.normal);
+            slopeNormalPerp = Vector2.Perpendicular(hit.normal).normalized;
 
             slopeDownAngle = Vector2.Angle(hit.normal, Vector2.up);
 
@@ -163,6 +181,15 @@ public class MyCharacterController : MonoBehaviour
 
             Debug.DrawRay(hit.point, hit.normal, Color.green);
         }
+
+        if(isOnSlope && locAmount == 0.0f) 
+        {
+            rb.sharedMaterial = fullFriction;
+        } 
+        else
+        {
+            rb.sharedMaterial = noFriction;
+        } 
     }
 
 #if UNITY_EDITOR
@@ -181,10 +208,13 @@ public class MyCharacterController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (EditableChar.IsDead)
+        {
+            return;
+        }
         isGrounded = false;
 
         Collider2D[] colliders = Physics2D.OverlapCircleAll(groundChecker.position, 0.5f, ground);
-
         foreach (Collider2D col in  colliders)
         {
             if(col.gameObject != gameObject && !isFlying)
@@ -214,16 +244,7 @@ public class MyCharacterController : MonoBehaviour
             isStunned = false;
         }
 
-        Vector2 positionOnScreen = Camera.main.WorldToViewportPoint(transform.position);
-
-        //Get the Screen position of the mouse
-        Vector2 mouseOnScreen = (Vector2)Camera.main.ScreenToViewportPoint(Input.mousePosition);
-
-        //Get the angle between the points
-        float angle = AngleBetweenTwoPoints(positionOnScreen, mouseOnScreen);
-
-        //flashLight.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle + 90f));
-        SlopeCheck();
+        //SlopeCheck();
     }
 
     private bool isReloading = false;
@@ -244,20 +265,28 @@ public class MyCharacterController : MonoBehaviour
 
     private void UpdateBars()
     {
-        editableChar.UpdateLevitation(isFlying, isGrounded);
-        levitationIndicator.fillAmount = editableChar.GetLevitationFillAmount();
-        dodgeIndicator.fillAmount = Mathf.Clamp(cooldownDashInternal, 0, editableChar.cooldownDash) / editableChar.cooldownDash;
+        EditableChar.UpdateLevitation(isFlying, isGrounded);
+        levitationIndicator.fillAmount = EditableChar.GetLevitationFillAmount();
+        dodgeIndicator.fillAmount = Mathf.Clamp(cooldownDashInternal, 0, EditableChar.cooldownDash) / EditableChar.cooldownDash;
         currentAmmo.text = editableGun.MagazineCapacity.ToString();
         maxAmmo.text = editableGun.MaxMagazineCapacity.ToString();
     }
 
     public bool hasDodge = false;
+    private float locAmount;
     public void Move(float amount, bool flying, bool shooting, bool dodge, bool reloading, Vector2 cursorAiming)
     {
+        if (EditableChar.IsDead)
+        {
+            animator.SetBool("IsDead", true);
+            return;
+        }
+
+        locAmount = amount;
         isFlying = flying;
 
         // updating dash cooldown
-        if (cooldownDashInternal <= editableChar.cooldownDash)
+        if (cooldownDashInternal <= EditableChar.cooldownDash)
             cooldownDashInternal += Time.fixedDeltaTime;
 
         if (IsAnimationFinished("Cyborg_dash"))
@@ -276,7 +305,6 @@ public class MyCharacterController : MonoBehaviour
 
 
 
-        amount *= editableChar.MoveSpeed;
         animator.SetFloat("Speed", Mathf.Abs(amount));
 
         if (flying)
@@ -291,15 +319,15 @@ public class MyCharacterController : MonoBehaviour
 
         // sound event
         if (!characterAudioSource.isPlaying) characterAudioSource.clip = null;
-        if (Mathf.Abs(amount) > 0.01f && !characterAudioSource.isPlaying && !flying && isGrounded)
+        if (Mathf.Abs(amount * EditableChar.MoveSpeed) > 0.01f && !characterAudioSource.isPlaying && !flying && isGrounded)
             PlayRandomWalkingSound();
 
         // dodge event
-        if (dodge && cooldownDashInternal >= editableChar.cooldownDash)
+        if (dodge && cooldownDashInternal >= EditableChar.cooldownDash)
         {
             animator.SetBool("IsDodging", true);
             hasDodge = true;
-            rb.AddForce(Vector2.right * editableChar.DashSpeed * (defaultFacing ? 1 : -1));
+            rb.AddForce((defaultFacing ? 1 : -1) * EditableChar.DashSpeed * Vector2.right);
             cooldownDashInternal = 0;
             return;
         }
@@ -309,21 +337,24 @@ public class MyCharacterController : MonoBehaviour
         else if (amount > 0 && !defaultFacing) FlipCharacter();
 
         // movement force
-        transform.Translate(Vector3.right * amount);
+        rb.velocity = new Vector2(amount * EditableChar.MoveSpeed, rb.velocity.y);
         // jump force
-        rb.AddForce(Vector2.up * editableChar.GetJumpForce(flying));
-        if(isGrounded && !isOnSlope)
-        {
-
-        } 
-        else if(isGrounded && isOnSlope)
-        {
-
-        } 
-        else if(!isGrounded)
-        {
-
-        }
+        rb.AddForce(Vector2.up * EditableChar.GetJumpForce(flying));
+        //if(isGrounded && !isOnSlope)
+        //{
+        //    rb.velocity = new Vector2(amount * EditableChar.MoveSpeed, rb.velocity.y);
+        //} 
+        //else if(isGrounded && isOnSlope)
+        //{
+        //    rb.velocity = new Vector2(
+        //        -amount * slopeNormalPerp.x * EditableChar.MoveSpeed,
+        //        -amount * slopeNormalPerp.y * EditableChar.MoveSpeed
+        //        );
+        //} 
+        //else if(!isGrounded)
+        //{
+        //    rb.velocity = new Vector2(amount * EditableChar.MoveSpeed, rb.velocity.y);
+        //}
 
         if(reloading && !isReloading)
         {
@@ -339,24 +370,24 @@ public class MyCharacterController : MonoBehaviour
 
     }
     private Vector2 cursorDir;
-    private float desiredRot;
+    private readonly float desiredRot;
     private void SetCursorPosition(Vector2 position)
     {
         var desiredRotQ = Quaternion.Euler(Vector3.forward * Vector2.SignedAngle(Vector2.right, cursorDir));
         var desiredRotQFlashLight = Quaternion.Euler(Vector3.forward * (Vector2.SignedAngle(Vector2.right, cursorDir) - 90));
-        flashLight.rotation = Quaternion.Lerp(flashLight.rotation, desiredRotQFlashLight, Time.deltaTime * 20);
+        //flashLight.rotation = Quaternion.Lerp(flashLight.rotation, desiredRotQFlashLight, Time.deltaTime * 20);
         cursor.transform.rotation = Quaternion.Lerp(cursor.transform.rotation, desiredRotQ, Time.deltaTime * 20);
         cursor.transform.GetChild(0).localRotation = Quaternion.Euler(cursor.transform.rotation.eulerAngles.z * -Vector3.forward);
         cursor.transform.position = gunGFX.GetChild(0).position;
-        cursor.transform.position = gunGFX.GetChild(0).position;
-
         if (position.magnitude < 0.9 && Input.GetJoystickNames().Length != 0)
         {
+            cursor.gameObject.SetActive(true);
             return;
         }
         if (Input.GetJoystickNames().Length == 0)
         {
-            position = (getMousePosition() - gunGFX.GetChild(0).position).normalized;
+            position = (GetMousePosition() - gunGFX.GetChild(0).position).normalized;
+            cursor.gameObject.SetActive(false);
         } 
         else
         {
@@ -371,10 +402,15 @@ public class MyCharacterController : MonoBehaviour
 
     public void TakeDamage(bool fromRight, int damage = 1)
     {
-        if (isInvincible) return;
-        if(!editableChar.TakeDamage(damage))
+        if (isInvincible || EditableChar.IsDead) return;
+        if(!EditableChar.TakeDamage(damage))
         {
             healthBars.RemoveOne();
+        } 
+        else
+        {
+            animator.SetBool("IsDead", true);
+            return;
         }
         isInvincible = true;
 
@@ -391,7 +427,7 @@ public class MyCharacterController : MonoBehaviour
         rb.AddForce((fromRight ? Vector3.left : Vector3.right) * 200);
 
         InvokeRepeating(nameof(BlinkRed), 0, 0.2f);
-        Invoke(nameof(EndInvincibleFrame), editableChar.InvincibleTime);
+        Invoke(nameof(EndInvincibleFrame), EditableChar.InvincibleTime);
 
     }
 
@@ -409,7 +445,7 @@ public class MyCharacterController : MonoBehaviour
         if(IsRed) BlinkRed();
     }
 
-    private Vector3 getMousePosition()
+    private Vector3 GetMousePosition()
     {
         Vector3 screenPosDepth = Input.mousePosition;
         screenPosDepth.z = Vector3.Dot(
@@ -439,7 +475,7 @@ public class MyCharacterController : MonoBehaviour
 
         // angle pointing toward mouse position in the good direction
         qTo = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - rotationOffset);
-        p.SetStatistics(dir, editableGun.Damage, gameObject.layer);
+        p.SetValues(dir, editableGun.Damage, gameObject.layer);
 
         editableGun.MagazineCapacity--;
         if (editableGun.MagazineCapacity == 0 && !isReloading)
@@ -482,9 +518,9 @@ public class MyCharacterController : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         int layer = collision.gameObject.layer;
-        if (layer == LayerMask.NameToLayer("Collectible"))
+        if (layer == LayerMask.NameToLayer("Collectible") && !EditableChar.IsDead)
         {
-            if (collision.gameObject.tag == "Coin")
+            if (collision.gameObject.CompareTag("Coin"))
             {
                 otherSoundsEffect.clip = coinSound;
                 otherSoundsEffect.Play();
@@ -499,5 +535,10 @@ public class MyCharacterController : MonoBehaviour
         defaultFacing = !defaultFacing;
         transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
         rotationOffset = defaultFacing ? 0 : 180;
+    }
+
+    public void DeactivateCursor()
+    {
+        cursor.gameObject.SetActive(false);
     }
 }

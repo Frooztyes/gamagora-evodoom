@@ -14,7 +14,7 @@ public class SwitchOptions : MonoBehaviour
         AUDIO, GRAPHICS, VIDEO
     };
 
-    [System.Serializable]
+    [Serializable]
     private struct ButtonCategory
     {
         public Image button;

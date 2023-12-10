@@ -16,6 +16,7 @@ public class EnnemyRadar : MonoBehaviour
     [SerializeField] private GameObject radarPing;
     [SerializeField] private RectTransform lineTrail;
     [SerializeField] private float lineSpeed = 10f;
+    [SerializeField] private LayerMask layerPinged;
 
     RectTransform rectTransform;
     List<Collider2D> colliderList;
@@ -56,8 +57,8 @@ public class EnnemyRadar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector2 OldMax = new Vector2(player.position.x + radarDistance, player.position.y + radarDistance);
-        Vector2 OldMin = new Vector2(player.position.x - radarDistance, player.position.y - radarDistance);
+        Vector2 OldMax = new(player.position.x + radarDistance, player.position.y + radarDistance);
+        Vector2 OldMin = new(player.position.x - radarDistance, player.position.y - radarDistance);
         Vector2 OldRange = OldMax - OldMin;
         Vector2 NewRange = NewMax - NewMin;
 
@@ -71,21 +72,25 @@ public class EnnemyRadar : MonoBehaviour
         }
 
         float angleRad = lineTrail.eulerAngles.z * (Mathf.PI / 180f);
-        Vector3 angleVector = new Vector3(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
+        Vector3 angleVector = new(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
 
-        RaycastHit2D[] raycastsHit2D = Physics2D.RaycastAll(player.position, angleVector, Mathf.Infinity, 1 << LayerMask.NameToLayer("Ennemy"));
+        RaycastHit2D[] raycastsHit2D = Physics2D.RaycastAll(player.position, angleVector, Mathf.Infinity, layerPinged);
         foreach(RaycastHit2D raycastHit2D in raycastsHit2D)
         {
             if(raycastHit2D.collider == null) continue;
             if (colliderList.Contains(raycastHit2D.collider)) continue;
-
             colliderList.Add(raycastHit2D.collider);
 
             RectTransform rect = Instantiate(radarPing, Vector3.zero, Quaternion.identity).GetComponent<RectTransform>();
             rect.SetParent(gameObject.transform);
             rect.SetSiblingIndex(2);
             rect.anchoredPosition = GetScaledPosition(raycastHit2D.transform.position, NewRange, OldRange, OldMin);
-            rect.GetComponent<RadarPing>().SetDisappearTimer(360f / lineSpeed);
+            rect.localScale = Vector3.one;
+            rect.GetComponent<RadarPing>().SetDisappearTimer(180f / lineSpeed);
+            if(raycastHit2D.collider.gameObject.CompareTag("ShipPart"))
+            {
+                rect.GetComponent<RadarPing>().color = Color.green;
+            }
         }
     }
 
@@ -95,7 +100,7 @@ public class EnnemyRadar : MonoBehaviour
 
         float y = position.y;
 
-        Vector2 oldPos = new Vector2(x, y);
+        Vector2 oldPos = new(x, y);
         Vector2 v = oldPos - (Vector2)player.position;
         if (v.magnitude > radarDistance)
         {

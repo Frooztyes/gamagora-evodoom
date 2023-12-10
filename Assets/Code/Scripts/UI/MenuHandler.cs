@@ -77,6 +77,7 @@ public class MenuHandler : MonoBehaviour
         {
             icons.Add(icon.GetComponent<Image>());
         }
+        icons.RemoveAt(icons.Count - 1);
     }
 
     private bool isFading = false;
@@ -119,10 +120,6 @@ public class MenuHandler : MonoBehaviour
                 break;
 
             case 2:
-                Debug.Log("Credits");
-                break;
-
-            case 3:
                 Fade();
                 Invoke(nameof(QuitApplication), lerpDuration + 0.5f);
                 break;
@@ -153,7 +150,7 @@ public class MenuHandler : MonoBehaviour
 
 
     float fadeElapsed = 0f;
-    float lerpDuration = 1.5f;
+    readonly float lerpDuration = 1.5f;
 
     // Update is called once per frame
     void Update()

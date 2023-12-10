@@ -400,6 +400,9 @@ MonoBehaviour:
   radarPing: {fileID: 2299553580586921119, guid: 016ffabc1b0676f41a8fd962722d6a2c, type: 3}
   lineTrail: {fileID: 4050371625333419293}
   lineSpeed: 180
+  layerPinged:
+    serializedVersion: 2
+    m_Bits: 2304
 --- !u!114 &2234708633879020090
 MonoBehaviour:
   m_ObjectHideFlags: 0

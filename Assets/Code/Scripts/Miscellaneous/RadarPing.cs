@@ -7,7 +7,7 @@ public class RadarPing : MonoBehaviour
 {
     private Image image;
     [SerializeField] private float disappearTimerMax = 1f;
-    [SerializeField] private Color color = Color.red;
+    public Color color = Color.red;
     private float disappearTimer = 0f;
     // Start is called before the first frame update
     void Start()

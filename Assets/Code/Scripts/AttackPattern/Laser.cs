@@ -23,7 +23,7 @@ public class Laser : AttackPattern
     private bool inReset = false;
     private bool laserStarted = false;
 
-    float resetTime = 1f;
+    readonly float resetTime = 1f;
     float time = 0f;
     float width;
 
@@ -31,7 +31,7 @@ public class Laser : AttackPattern
     void Start()
     {
         m_transform = GetComponent<Transform>();
-        // deactivate in editor because of gizmos issue
+
         m_lineRenderer.useWorldSpace = true;
         endVFX.SetActive(false);
 
@@ -217,8 +217,7 @@ public class Laser : AttackPattern
     {
         m_lineRenderer.SetPosition(0, startPos);
         m_lineRenderer.SetPosition(1, endPos);
-        endVFX.transform.position = endPos;
-        endVFX.transform.rotation = Quaternion.Euler(0, 0, -Vector2.Angle(startPos, endPos));
+        endVFX.transform.SetPositionAndRotation(endPos, Quaternion.Euler(0, 0, -Vector2.Angle(startPos, endPos)));
     }
 
     public override bool IsOver()

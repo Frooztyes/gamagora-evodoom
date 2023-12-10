@@ -4224,6 +4224,9 @@ MonoBehaviour:
   masterSlider: {fileID: 3617361635750210331}
   musicSlider: {fileID: 3174218098771679773}
   effectsSlider: {fileID: 2965357517192997818}
+  masterText: {fileID: 8542966517591650177}
+  musicText: {fileID: 8027529812954817469}
+  effectsText: {fileID: 4816337692199705451}
 --- !u!1 &3469101485119352789
 GameObject:
   m_ObjectHideFlags: 0

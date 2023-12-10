@@ -42,7 +42,7 @@ public class VolleyProjectile : AttackPattern
         idAngle = Random.Range(0, bulletPerVolley);
         upwardSpread = true;
         //Projectile p = Instantiate(projectile, projectilePosition.position, Quaternion.identity).GetComponent<Projectile>();
-        InvokeRepeating("ShootProjectile", 0, 1.0f/bulletPerSecond);
+        InvokeRepeating(nameof(ShootProjectile), 0, 1.0f/bulletPerSecond);
     }
 
     public override void StartAttack()
@@ -63,8 +63,9 @@ public class VolleyProjectile : AttackPattern
         Vector2 dir = Quaternion.Euler(0f, 0f, angle) * transform.right * (transform.lossyScale.x < 0 ? -1 : 1);
 
         Projectile p = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Projectile>();
-        projectileSound.Play();
-        p.SetStatistics(dir, damage, LayerMask.NameToLayer("Ennemy"));
+        if(projectileSound.isActiveAndEnabled)
+            projectileSound.Play();
+        p.SetValues(dir, damage, LayerMask.NameToLayer("Ennemy"));
 
         idAngle += upwardSpread ? 1 : -1;
         if(idAngle >= bulletPerVolley)
@@ -77,12 +78,6 @@ public class VolleyProjectile : AttackPattern
             idAngle = 1;
             upwardSpread = !upwardSpread;
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public override bool IsOver()

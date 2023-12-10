@@ -2478,7 +2478,6 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - GLOW_ON
   - UNDERLAY_ON
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -2558,7 +2557,7 @@ Material:
     - _TextureWidth: 512
     - _UnderlayDilate: 0.15
     - _UnderlayOffsetX: 0
-    - _UnderlayOffsetY: 1
+    - _UnderlayOffsetY: -1
     - _UnderlaySoftness: 0
     - _VertexOffsetX: 0
     - _VertexOffsetY: 0

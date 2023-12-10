@@ -30,7 +30,7 @@ public class EnnemyAI : MonoBehaviour
         DEAD
     }
 
-    [SerializeField] private Ennemy ennemy;
+    public Ennemy ennemy;
     private Ennemy editableEnnemy;
 
     [Header("Behaviour")]
@@ -50,6 +50,8 @@ public class EnnemyAI : MonoBehaviour
     private GameObject ennemyGFX;
     private AttackPattern attackGameObject;
     private Transform attackPosition;
+
+    private MyCharacterController player;
 
     private Animator animator;
 
@@ -106,7 +108,7 @@ public class EnnemyAI : MonoBehaviour
         {
             target = GameObject.FindGameObjectWithTag("Player").transform;
         }
-
+        player = target.GetComponent<MyCharacterController>();
         gameHandler = GameObject.FindGameObjectWithTag("GameHandler").GetComponent<GameHandler>();
 
         // Update A* path every .5 seconds
@@ -124,7 +126,7 @@ public class EnnemyAI : MonoBehaviour
 
     #region Editor
     #if UNITY_EDITOR
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         if (editableEnnemy == null) editableEnnemy = Instantiate(ennemy);
         Handles.color = Color.red;
@@ -156,7 +158,8 @@ public class EnnemyAI : MonoBehaviour
     #region StateMachine
     State ChangeState()
     {
-        animator.SetBool("Reset", false);
+        if(editableEnnemy.AttackPattern == Ennemy.AttackType.MELEE)
+            animator.SetBool("Reset", false);
         if (currentState == State.DEAD)
             return State.DEAD;
 
@@ -382,21 +385,21 @@ public class EnnemyAI : MonoBehaviour
         explosionPosition.x = Random.Range(rangeX[0], rangeX[1]);
         explosionPosition.y = Random.Range(rangeY[0], rangeY[1]);
 
-        Instantiate(explosionEffect, explosionPosition, Quaternion.identity);
+        //Instantiate(explosionEffect, explosionPosition, Quaternion.identity);
     }
 
     private void RemoveGameObject()
     {
         CancelInvoke(nameof(ExplosionDeath));
-        int maxCoins = Random.Range(editableEnnemy.MinCoinsOnDeath, editableEnnemy.MaxCoinsOnDeath + 1);
-        for (int i = 0; i < maxCoins; i++)
-        {
-            Rigidbody2D rb = Instantiate(coin, transform.position, Quaternion.identity).GetComponent<Rigidbody2D>();
+        //int maxCoins = Random.Range(editableEnnemy.MinCoinsOnDeath, editableEnnemy.MaxCoinsOnDeath + 1);
+        //for (int i = 0; i < maxCoins; i++)
+        //{
+        //    Rigidbody2D rb = Instantiate(coin, transform.position, Quaternion.identity).GetComponent<Rigidbody2D>();
 
-            Vector2 velocity = Vector2.up * Random.Range(200, 300) + Vector2.right * Random.Range(-200, 200);
-            rb.AddForce(velocity);
+        //    Vector2 velocity = Vector2.up * Random.Range(200, 300) + Vector2.right * Random.Range(-200, 200);
+        //    rb.AddForce(velocity);
 
-        }
+        //}
 
         if(rb.velocity.y == 0)
             Destroy(gameObject);
@@ -424,7 +427,7 @@ public class EnnemyAI : MonoBehaviour
     public void TakeDamage(int damage, bool fromRight)
     {
         if (isInvincible) return;
-        if(editableEnnemy.TakeDamage(damage))
+        if(editableEnnemy.TakeDamage(1))
         {
             EnterDeadState();
             currentState = State.DEAD;
@@ -439,7 +442,7 @@ public class EnnemyAI : MonoBehaviour
     public void BlinkRed()
     {
         IsRed = !IsRed;
-        sprite.color = IsRed ? Color.red : Color.white;
+        ennemyGFX.GetComponent<SpriteRenderer>().color = IsRed ? Color.red : Color.white;
     }
 
     private void EndInvincibleFrame()
@@ -454,6 +457,13 @@ public class EnnemyAI : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
+        if (player.EditableChar.IsDead)
+        {
+            if (attackGameObject != null)
+                Destroy(attackGameObject.gameObject);
+            return;
+        }
+
         currentState = ChangeState();
         if (currentState != State.SHOOT && attackGameObject && attackGameObject.IsOver())
             Destroy(attackGameObject.gameObject);
@@ -491,7 +501,8 @@ public class EnnemyAI : MonoBehaviour
             {
                 return editableEnnemy.ContactDamage * 2;
             }
-        } 
+        }
+        if (editableEnnemy.IsDead) return 0;
         return editableEnnemy.ContactDamage;
     }
 

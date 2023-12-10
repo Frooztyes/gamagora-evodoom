@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9265dd67f46ca1549becf929008dd1f6, type: 3}
+  m_Name: Data 1
+  m_EditorClassIdentifier: 
+  prefabGrid: {fileID: 9165489562199153303, guid: 5a89948ab4024bd429119772d9e5ebea, type: 3}
+  xOrigin: 0
+  yOrigin: 1
+  upCompat: 01000000
+  rightCompat: 01000000
+  downCompat: 00000000
+  leftCompat: 01000000

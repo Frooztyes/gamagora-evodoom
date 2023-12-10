@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5628656224146173617
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 755638253199631100}
+  - component: {fileID: 8834432388559535927}
+  - component: {fileID: 3953737928109524311}
+  m_Layer: 0
+  m_Name: MapGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &755638253199631100
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5628656224146173617}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8834432388559535927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5628656224146173617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86e9f99280054134390e0277e2983c57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  seed: 0
+  depth: 24
+  bound: 47
+  shipRooms:
+  - {x: -1, y: -1, z: 0}
+  - {x: 2, y: 0, z: 0}
+  - {x: -5, y: 1, z: 0}
+  - {x: 2, y: 2, z: 0}
+  mapBounds:
+  - -5
+  - 4
+  - -2
+  - 3
+--- !u!114 &3953737928109524311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5628656224146173617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b68f89dafa59c244b267eb43046eaf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultFullChunk: {fileID: 11400000, guid: b3ba9cefc3701f1ca98b2a96728b5017, type: 2}
+  chunkList:
+  - {fileID: 11400000, guid: bc9f7943d908f4c05829349390cdd876, type: 2}
+  - {fileID: 11400000, guid: f0042a8b9700260f2a06f28a7ad51527, type: 2}
+  - {fileID: 11400000, guid: 0419b5b5919ca5bebac5117ea185e857, type: 2}
+  - {fileID: 11400000, guid: cef01a3ba85927f8eabe7c9341339c55, type: 2}
+  - {fileID: 11400000, guid: 535de643315a62c45b4259957906988d, type: 2}
+  - {fileID: 11400000, guid: bacf1f313119f9af3a4e506cb7c9f9a9, type: 2}
+  - {fileID: 11400000, guid: e392ced93253288b889a702231e8f6ec, type: 2}
+  - {fileID: 11400000, guid: 4f54fd565db7a7cd78de9538cdec2aea, type: 2}
+  - {fileID: 11400000, guid: fa99e779aa67720e4b52f053af991b9a, type: 2}
+  - {fileID: 11400000, guid: 85e0195934c050e93ad57561488a3114, type: 2}
+  - {fileID: 11400000, guid: 0ece66507549e9ef183e86c0b5f11202, type: 2}
+  - {fileID: 11400000, guid: 2c8ba4cba6e7aaee987c535b6ea2de21, type: 2}
+  - {fileID: 11400000, guid: c7024803a46fcb100a928079f83c936b, type: 2}
+  - {fileID: 11400000, guid: 4633ddc77b3a7904da0de6db73c01512, type: 2}
+  - {fileID: 11400000, guid: b3ba9cefc3701f1ca98b2a96728b5017, type: 2}
+  - {fileID: 11400000, guid: bfa551aa669fb87a382bd01b0e15c352, type: 2}
+  chunkProb: 170000000b0000001700000017000000170000000a0000001a000000070000000d0000001c0000000b0000001c0000000e000000220000006400000009000000
+  length: 10
+  height: 10
+  grid: {fileID: 0}
