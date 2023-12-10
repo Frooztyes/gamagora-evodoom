@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BlinkingCollectible : MonoBehaviour
 {
-    float maxLifetime = 10f;
+    readonly float maxLifetime = 10f;
     float lifetime;
     // Start is called before the first frame update
     void Start()
@@ -25,6 +25,7 @@ public class BlinkingCollectible : MonoBehaviour
         gameObject.GetComponent<SpriteRenderer>().enabled = true;
     }
 
+    // blink a collectible and remove it if his lifetime is 0
     void Blink()
     {
         gameObject.GetComponent<SpriteRenderer>().enabled = false;

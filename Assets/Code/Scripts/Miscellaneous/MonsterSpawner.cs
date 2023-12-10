@@ -20,6 +20,10 @@ public class MonsterSpawner : MonoBehaviour
     [SerializeField] private List<MonsterTypeObject> monsters;
     [SerializeField] private GameObject ennemyPrefab;
 
+    /// <summary>
+    /// Spawn an enemmy at position considering his type
+    /// </summary>
+    /// <param name="type"></param>
     public void SpawnMonster(MonsterType type)
     {
         Ennemy e = monsters.Where(i => i.type == type).FirstOrDefault().scriptableObject;

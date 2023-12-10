@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ScriptableObject representing living creature :
+/// - Enemmy 
+/// - Player
+/// </summary>
 public abstract class LivingCreature : ScriptableObject
 {
     [Header("Health")]
@@ -22,6 +27,11 @@ public abstract class LivingCreature : ScriptableObject
         Health += amount;
     }
 
+    /// <summary>
+    /// Remove health when taking damage
+    /// </summary>
+    /// <param name="damage"></param>
+    /// <returns>True if dead</returns>
     public bool TakeDamage(int damage)
     {
         Health -= damage;
@@ -34,6 +44,10 @@ public abstract class LivingCreature : ScriptableObject
         return false;
     }
 
+    /// <summary>
+    /// Return percentage of health over max health
+    /// </summary>
+    /// <returns></returns>
     public float GetHealthAmount()
     {
         return Health / MaxHealth;

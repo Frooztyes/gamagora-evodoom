@@ -1,6 +1,9 @@
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// ONLY FOR TESTING PURPOSES, NOT IN THE ACTUAL GAME
+/// </summary>
 public class Teleporter : MonoBehaviour
 {
     [SerializeField] private Transform Arrival;

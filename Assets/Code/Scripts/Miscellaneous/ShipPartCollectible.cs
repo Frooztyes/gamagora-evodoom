@@ -24,6 +24,7 @@ public class ShipPartCollectible : MonoBehaviour
         indicatorCollectible.SetActive(false);
     }
 
+    // allow collectible to be retreive if the player collide with
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.gameObject.CompareTag("Player"))

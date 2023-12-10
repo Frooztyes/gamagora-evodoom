@@ -16,6 +16,10 @@ public class MusicHandler : MonoBehaviour
     }
 
     bool searchingNewMusic;
+
+    /// <summary>
+    /// Change music when the last one ends
+    /// </summary>
     private void SetNewMusic()
     {
         int currentId = -1;

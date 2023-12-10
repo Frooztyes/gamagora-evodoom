@@ -6,6 +6,9 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.Windows;
 
+/// <summary>
+/// Allow user to press A to return to menu
+/// </summary>
 public class EndHandler : MonoBehaviour
 {
     private CustomInputs input = null;

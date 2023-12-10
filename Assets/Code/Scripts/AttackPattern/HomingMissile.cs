@@ -53,7 +53,7 @@ public class HomingMissile : MonoBehaviour
         }
         if (layer == "Ground")
         {
-            // create an explosion that damages ennemies and player if rocket explodes on the floor
+            // create an explosion that damages enemmies and player if rocket explodes on the floor
             var hitColliders = Physics2D.OverlapCircleAll(transform.position, explosionRadius, 1 << LayerMask.NameToLayer("Player") | 1 << LayerMask.NameToLayer("Ennemy"));
             foreach(Collider2D i in hitColliders)
             {

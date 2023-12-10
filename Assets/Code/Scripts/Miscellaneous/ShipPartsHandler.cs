@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Handle ship part retreiving by updating HUD
+/// </summary>
 public class ShipPartsHandler : MonoBehaviour
 {
     [System.Serializable]
@@ -34,6 +37,7 @@ public class ShipPartsHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // if all pieces are retreives, show that the player can leave 
         if(partRetreived >= 4 && !IndicatorLeave.activeSelf)
         {
             IndicatorLeave.SetActive(true);

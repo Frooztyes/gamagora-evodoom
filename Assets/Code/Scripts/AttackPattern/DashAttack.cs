@@ -1,6 +1,10 @@
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Dash attack used by melee enemmy
+/// </summary>
+
 public class DashAttack : AttackPattern
 {
     [SerializeField] private float initalAngle;
@@ -20,6 +24,10 @@ public class DashAttack : AttackPattern
         return player.transform.position;
     }
 
+    /// <summary>
+    /// Coroutines to jump enemmy toward player
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator JumpToTarget()
     {
         Vector3 startPosition = transform.position;
@@ -59,8 +67,8 @@ public class DashAttack : AttackPattern
         float angle = initialAngle * Mathf.Deg2Rad;
 
         // Positions of this object and the target on the same plane
-        Vector3 planarTarget = new Vector3(p.x, 0, p.z);
-        Vector3 planarPostion = new Vector3(transform.position.x, 0, transform.position.z);
+        Vector3 planarTarget = new(p.x, 0, p.z);
+        Vector3 planarPostion = new(transform.position.x, 0, transform.position.z);
 
         // Planar distance between objects
         float distance = Vector3.Distance(planarTarget, planarPostion);
@@ -69,7 +77,7 @@ public class DashAttack : AttackPattern
 
         float initialVelocity = 1 / Mathf.Cos(angle) * Mathf.Sqrt(0.5f * gravity * Mathf.Pow(distance, 2) / (distance * Mathf.Tan(angle) + yOffset));
 
-        Vector3 velocity = new Vector3(0, initialVelocity * Mathf.Sin(angle), initialVelocity * Mathf.Cos(angle));
+        Vector3 velocity = new(0, initialVelocity * Mathf.Sin(angle), initialVelocity * Mathf.Cos(angle));
 
         // Rotate our velocity to match the direction between the two objects
         float angleBetweenObjects = Vector3.Angle(Vector3.forward, planarTarget - planarPostion) * (p.x > transform.position.x ? 1 : -1); ;
@@ -90,8 +98,8 @@ public class DashAttack : AttackPattern
         Vector2 r1Size = r1.bounds.size;
         Vector2 r2Size = r2.bounds.size;
 
-        Rect rec1 = new Rect(go.transform.position.x - (r1Size.x / 2), go.transform.position.y - (r1Size.y/2), r1Size.x, r1Size.y);
-        Rect rec2 = new Rect(transform.position.x - (r2Size.x / 2), transform.position.y, r2Size.x, r2Size.y);
+        Rect rec1 = new(go.transform.position.x - (r1Size.x / 2), go.transform.position.y - (r1Size.y/2), r1Size.x, r1Size.y);
+        Rect rec2 = new(transform.position.x - (r2Size.x / 2), transform.position.y, r2Size.x, r2Size.y);
         return rec1.Overlaps(rec2);
     }
 
@@ -139,7 +147,10 @@ public class DashAttack : AttackPattern
 
     public bool IsReloading() { return isReloading; }
 
-
+    /// <summary>
+    /// Check if current animation is playing
+    /// </summary>
+    /// <returns></returns>
     bool AnimatorIsPlaying()
     {
         return animator.GetCurrentAnimatorStateInfo(0).length >
@@ -147,7 +158,13 @@ public class DashAttack : AttackPattern
     }
 
     Animator animator;
-
+    
+    /// <summary>
+    /// Set dash attack informations
+    /// </summary>
+    /// <param name="target">player target</param>
+    /// <param name="anim">enemmy animator</param>
+    /// <param name="rb">enemmy rigidbody</param>
     public void SetInformations(Transform target, Animator anim, Rigidbody2D rb)
     {
         player = target;

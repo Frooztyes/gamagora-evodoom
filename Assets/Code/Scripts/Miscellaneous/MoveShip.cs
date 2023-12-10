@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+/// <summary>
+/// Randomly move the ship on the screen, only used on HUD, not a gameplay feature
+/// </summary>
 public class MoveShip : MonoBehaviour
 {
     Vector3 nextPos;
@@ -19,6 +22,7 @@ public class MoveShip : MonoBehaviour
     {
         int width = 1920;
         int height = 1080;
+        // random position with a 10% borders on the screen
         nextPos.x = Random.Range(0.1f * width, 0.9f * width);
         nextPos.y = Random.Range(0.1f * height, 0.9f * height);
         speed = Random.Range(0.8f, 1.2f);

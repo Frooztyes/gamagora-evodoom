@@ -24,7 +24,7 @@ public class QualityHandler : OptionHandlerAb
     // Start is called before the first frame update
     void Start()
     {
-        int quality = saveHandler.sd.quality;
+        int quality = saveHandler.SD.quality;
         SetQuality(quality);
     }
 
@@ -41,7 +41,7 @@ public class QualityHandler : OptionHandlerAb
         }
 
         QualitySettings.SetQualityLevel(nextIndex);
-        saveHandler.sd.quality = nextIndex;
+        saveHandler.SD.quality = nextIndex;
         qualityText.text = qualities.ElementAt(nextIndex);
         currentQuality = nextIndex;
     }
@@ -49,6 +49,6 @@ public class QualityHandler : OptionHandlerAb
     public override void DoAction(int index, int dir)
     {
         SetQuality(dir);
-        saveHandler.PopulateSaveData(saveHandler.sd);
+        saveHandler.PopulateSaveData(saveHandler.SD);
     }
 }

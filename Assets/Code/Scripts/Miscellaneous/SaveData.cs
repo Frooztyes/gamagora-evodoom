@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Class storing all values for player's preferences
+/// </summary>
 [System.Serializable]
 public class SaveData
 {
@@ -9,7 +12,7 @@ public class SaveData
     public int quality = 5;
 
     // video settings
-    public Vector2 resolution = new Vector2(1920, 1080);
+    public Vector2 resolution = new(1920, 1080);
     public int frameRate = -1;
     public bool vsync = false;
     public FullScreenMode screenmode = FullScreenMode.FullScreenWindow;

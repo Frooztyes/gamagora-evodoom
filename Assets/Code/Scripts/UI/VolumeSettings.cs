@@ -27,9 +27,9 @@ public class VolumeSettings : OptionHandlerAb
         masterSlider.onValueChanged.AddListener(SetMasterVolume);
         effectsSlider.onValueChanged.AddListener(SetEffectVolume);
 
-        float musicValue = saveHandler.sd.musicVolume;
-        float effectValue = saveHandler.sd.effectVolume;
-        float masterValue = saveHandler.sd.masterVolume;
+        float musicValue = saveHandler.SD.musicVolume;
+        float effectValue = saveHandler.SD.effectVolume;
+        float masterValue = saveHandler.SD.masterVolume;
 
         SetMasterVolume(masterValue);
         masterSlider.value = masterValue;
@@ -50,28 +50,40 @@ public class VolumeSettings : OptionHandlerAb
         effectsText.text = effectValue.ToString();
     }
 
+    /// <summary>
+    /// Change music volume setting
+    /// </summary>
+    /// <param name="value"></param>
     void SetMusicVolume(float value)
     {
         mixer.SetFloat(MIXER_MUSIC, Mathf.Log10(value) * 20);
-        saveHandler.sd.musicVolume = value;
+        saveHandler.SD.musicVolume = value;
         value *= 10;
         value = Mathf.Round(value * 10f) / 10;
         musicText.text = value.ToString();
     }
 
+    /// <summary>
+    /// Change master volume setting
+    /// </summary>
+    /// <param name="value"></param>
     void SetMasterVolume(float value)
     {
         mixer.SetFloat(MIXER_MASTER, Mathf.Log10(value) * 20);
-        saveHandler.sd.masterVolume = value;
+        saveHandler.SD.masterVolume = value;
         value *= 10;
         value = Mathf.Round(value * 10f) / 10;
         masterText.text = value.ToString();
     }
 
+    /// <summary>
+    /// Change effect volume setting
+    /// </summary>
+    /// <param name="value"></param>
     void SetEffectVolume(float value)
     {
         mixer.SetFloat(MIXER_EFFECT, Mathf.Log10(value) * 20);
-        saveHandler.sd.effectVolume = value;
+        saveHandler.SD.effectVolume = value;
         value *= 10;
         value = Mathf.Round(value * 10f) / 10;
         effectsText.text = value.ToString();
@@ -94,6 +106,6 @@ public class VolumeSettings : OptionHandlerAb
             default:
                 break;
         }
-        saveHandler.PopulateSaveData(saveHandler.sd);
+        saveHandler.PopulateSaveData(saveHandler.SD);
     }
 }

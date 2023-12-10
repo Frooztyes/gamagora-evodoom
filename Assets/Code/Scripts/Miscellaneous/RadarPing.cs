@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// GameObject showing an enemmy or a ship part on the radar, disappear after a time
+/// </summary>
 public class RadarPing : MonoBehaviour
 {
     private Image image;
